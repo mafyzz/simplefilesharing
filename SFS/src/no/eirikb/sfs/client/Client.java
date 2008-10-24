@@ -1,0 +1,73 @@
+/*
+ * =============================================================================
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <eirikb@google.com> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return Eirik Brandtzæg
+ * =============================================================================
+ */
+package no.eirikb.sfs.client;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import no.eirikb.sfs.event.Event;
+import no.eirikb.sfs.server.Server;
+
+/**
+ *
+ * @author eirikb
+ * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
+ */
+public class Client extends Thread {
+
+    private ClientAction action;
+    private Socket socket;
+    private ObjectOutputStream objectOut;
+
+    public Client(ClientAction action) {
+        this.action = action;
+    }
+
+    public void connect(String host, int port) throws IOException {
+        socket = new Socket(host, port);
+        objectOut = new ObjectOutputStream(socket.getOutputStream());
+        start();
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void sendObject(Object object) {
+        try {
+            objectOut.writeObject(object);
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream());
+            while (true) {
+                Event event = (Event) objectIn.readObject();
+                action.onClientEvent(event);
+            }
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+}
