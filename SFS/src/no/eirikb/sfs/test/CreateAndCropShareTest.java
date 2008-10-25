@@ -12,7 +12,7 @@ import no.eirikb.sfs.share.ShareUtility;
 public class CreateAndCropShareTest {
 
     public static void main(String[] args) {
-        String filePath = "/home/eirikb/Desktop";
+        String filePath = "/home/eirikb/test";
         Share result = ShareUtility.createShare(filePath);
 
         long split = result.getShare().getSize() / 2;

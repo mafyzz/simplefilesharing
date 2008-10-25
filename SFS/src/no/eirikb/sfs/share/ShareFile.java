@@ -18,15 +18,17 @@ import java.io.Serializable;
 public class ShareFile implements Serializable {
 
     private String name;
+    private String path;
     private long size;
     private long start;
     private long stop;
 
-    public ShareFile(String name, long size) {
+    public ShareFile(String name, long size, String path) {
         this.name = name;
         this.size = size;
-        this.start = 0;
-        this.stop = size;
+        this.path = path;
+        start = 0;
+        stop = size;
     }
 
     public void setName(String name) {
@@ -59,5 +61,9 @@ public class ShareFile implements Serializable {
 
     public void setStop(long stop) {
         this.stop = stop;
+    }
+
+    public String getPath() {
+        return path;
     }
 }

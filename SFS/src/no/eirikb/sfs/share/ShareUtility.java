@@ -18,8 +18,10 @@ import java.io.File;
 public class ShareUtility {
 
     private static long tot;
+    private static int pathLength;
 
     public static Share createShare(String filePath) {
+        pathLength = filePath.length();
         File file = new File(filePath);
         Share share = new Share(file.getName());
         ShareFolder shareFolder = new ShareFolder(file.getName());
@@ -43,7 +45,8 @@ public class ShareUtility {
                 share.setTotal(share.getTotal() + sh.getTotal());
             }
         } else if (file.isFile()) {
-            ShareFile sf = new ShareFile(file.getName(), file.length());
+            String path = file.getAbsolutePath().substring(pathLength);
+            ShareFile sf = new ShareFile(file.getName(), file.length(), path);
             share.getFiles().add(sf);
             share.setSize(share.getSize() + file.length());
             share.setTotal(share.getTotal() + 1);
@@ -63,7 +66,7 @@ public class ShareUtility {
             long start, long stop) {
         if (tot >= 0) {
             for (ShareFile fl : share.getFiles()) {
-                ShareFile f = new ShareFile(fl.getName(), fl.getSize());
+                ShareFile f = new ShareFile(fl.getName(), fl.getSize(), fl.getPath());
                 tot += f.getSize();
                 if (tot >= start) {
                     if (tot - f.getSize() < start) {

@@ -70,7 +70,7 @@ public class ShareFolder implements Serializable {
         }
         String s = tab + "[FOLDER] " + total + " - " + size + " - " + name;
         for (ShareFile f : files) {
-            s += "\n" + tab + "[FILE] " + f.getSize() + "(" + f.getStart() + ", " + f.getStop() + ") - " + f.getName();
+            s += "\n" + tab + "[FILE] " + f.getSize() + "(" + f.getStart() + ", " + f.getStop() + ") - " + f.getName() + " " + f.getPath();
         }
         for (ShareFolder f : folders) {
             s += tab + "\n" + f.toString(tabLength + 1);
