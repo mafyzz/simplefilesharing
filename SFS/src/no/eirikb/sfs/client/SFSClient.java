@@ -36,6 +36,7 @@ public class SFSClient implements ClientAction, ServerAction {
     private List<User> users;
     private SFSClientListener listener;
     private Map<Integer, LocalShare> localShares;
+    private String shareFolder;
 
     public SFSClient(SFSClientListener listener, String host, int port, int listenPort) {
         this.listener = listener;
@@ -43,6 +44,7 @@ public class SFSClient implements ClientAction, ServerAction {
         users = new ArrayList<User>();
         shares = new ArrayList<Share>();
         localShares = new Hashtable<Integer, LocalShare>();
+        shareFolder = "downloads/";
         try {
             client.connect(host, port);
             client.sendObject(new SendUserInfoEvent(listenPort));
@@ -87,5 +89,21 @@ public class SFSClient implements ClientAction, ServerAction {
 
     public void onServerEvent(Server server, Event event) {
         event.execute(listener, this, server);
+    }
+
+    public SFSClientListener getListener() {
+        return listener;
+    }
+
+    public void setListener(SFSClientListener listener) {
+        this.listener = listener;
+    }
+
+    public String getShareFolder() {
+        return shareFolder;
+    }
+
+    public void setShareFolder(String shareFolder) {
+        this.shareFolder = shareFolder;
     }
 }

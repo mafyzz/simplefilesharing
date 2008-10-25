@@ -20,6 +20,8 @@ public class LocalShare {
 
     private File file;
     private Share share;
+    private int shares;
+    private int totalShares;
 
     public LocalShare(File file, Share share) {
         this.file = file;
@@ -40,5 +42,21 @@ public class LocalShare {
 
     public void setShare(Share share) {
         this.share = share;
+    }
+
+    public int getShares() {
+        return shares;
+    }
+
+    public synchronized void incShares() {
+        shares++;
+    }
+
+    public int getTotalShares() {
+        return totalShares;
+    }
+
+    public void setTotalShares(int totalShares) {
+        this.totalShares = totalShares;
     }
 }
