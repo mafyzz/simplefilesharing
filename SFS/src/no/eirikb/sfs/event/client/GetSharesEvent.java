@@ -8,6 +8,7 @@
  */
 package no.eirikb.sfs.event.client;
 
+import java.net.Socket;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
@@ -32,6 +33,10 @@ public class GetSharesEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void execute(SFSClientListener listener, Socket socket) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

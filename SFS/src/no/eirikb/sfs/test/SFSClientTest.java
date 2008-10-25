@@ -39,9 +39,9 @@ public class SFSClientTest {
                 System.out.println("Add Share!");
             }
         }, "localhost", 31337, listenPort);
-        String fileName = "/home/eirikb/Desktop/[DB]_Bleach_191_[B10B96E2].avi";
-        Share share = ShareUtility.createShare(fileName);
-        client.getLocalShares().put(share.getHash(), new LocalShare(new File(fileName), share));
+        File file = new File("/home/eirikb/Desktop/[DB]_Bleach_191_[B10B96E2].avi");
+        Share share = ShareUtility.createShare(file);
+        client.getLocalShares().put(share.getHash(), new LocalShare(file, share));
         client.getClient().sendObject(new CreateShareEvent(share));
 
 

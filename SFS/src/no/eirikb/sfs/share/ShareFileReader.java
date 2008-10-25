@@ -8,6 +8,7 @@
  */
 package no.eirikb.sfs.share;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class ShareFileReader extends ShareFileHandler {
 
     private FileInputStream currentStream;
 
-    public ShareFileReader(ShareFolder share, String path) {
+    public ShareFileReader(ShareFolder share, File path) {
         super(share, path);
         resetStream();
     }
@@ -51,9 +52,8 @@ public class ShareFileReader extends ShareFileHandler {
 
     private void resetStream() {
         selectNextFile();
-        System.out.println("- " + currentFile.getPath());
         try {
-            currentStream = new FileInputStream(path + currentFile.getPath());
+            currentStream = new FileInputStream(getPath() + currentFile.getPath() + currentFile.getName());
         } catch (FileNotFoundException ex) {
             Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -20,9 +20,12 @@ public class ShareUtility {
     private static long tot;
     private static int pathLength;
 
-    public static Share createShare(String filePath) {
-        pathLength = filePath.length();
-        File file = new File(filePath);
+    public static Share createShare(File file) {
+        pathLength = file.getAbsolutePath().length();
+        if (file.isFile()) {
+            pathLength = file.getAbsolutePath().substring(0,
+                    file.getAbsolutePath().length() - file.getName().length() - 1).length();
+        }
         Share share = new Share(file.getName());
         ShareFolder shareFolder = new ShareFolder(file.getName());
         share.setShare(shareFolder);
@@ -45,7 +48,8 @@ public class ShareUtility {
                 share.setTotal(share.getTotal() + sh.getTotal());
             }
         } else if (file.isFile()) {
-            String path = file.getAbsolutePath().substring(pathLength);
+            String path = file.getPath();
+            path = path.substring(pathLength, path.length() - file.getName().length());
             ShareFile sf = new ShareFile(file.getName(), file.length(), path);
             share.getFiles().add(sf);
             share.setSize(share.getSize() + file.length());
@@ -77,7 +81,6 @@ public class ShareUtility {
                     newShare.setTotal(newShare.getTotal() + 1);
                     if (tot >= stop) {
                         if (tot > stop) {
-                            System.out.println(f.getSize() + " " + tot + " " + stop + " " + f.getName());
                             f.setStop(f.getSize() - (tot - stop));
                             newShare.setSize(newShare.getSize() - (tot - stop));
                             tot = -1;

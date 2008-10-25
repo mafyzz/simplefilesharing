@@ -25,7 +25,7 @@ public class ShareFileWriter extends ShareFileHandler {
     private FileOutputStream currentStream;
     private int written;
 
-    public ShareFileWriter(ShareFolder share, String path) {
+    public ShareFileWriter(ShareFolder share, File path) {
         super(share, path);
         resetStream();
     }
@@ -51,11 +51,9 @@ public class ShareFileWriter extends ShareFileHandler {
 
     private void resetStream() {
         selectNextFile();
-
         try {
-            String dir = path + currentFile.getPath().substring(0, currentFile.getPath().length() - currentFile.getName().length() - 1);
-            new File(dir).mkdirs();
-            currentStream = new FileOutputStream(path + currentFile.getPath());
+            new File(getPath() + currentFile.getPath()).mkdirs();
+            currentStream = new FileOutputStream(getPath() + currentFile.getPath() + currentFile.getName());
             written = 0;
         } catch (FileNotFoundException ex) {
             Logger.getLogger(ShareFileWriter.class.getName()).log(Level.SEVERE, null, ex);

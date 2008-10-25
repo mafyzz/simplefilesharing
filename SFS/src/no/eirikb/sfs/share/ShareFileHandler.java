@@ -8,6 +8,8 @@
  */
 package no.eirikb.sfs.share;
 
+import java.io.File;
+
 /**
  *
  * @author eirikb
@@ -16,11 +18,11 @@ package no.eirikb.sfs.share;
 public abstract class ShareFileHandler {
 
     public ShareFolder share;
-    public String path;
+    public File path;
     public ShareFolder currentShare;
     public ShareFile currentFile;
 
-    public ShareFileHandler(ShareFolder share, String path) {
+    public ShareFileHandler(ShareFolder share, File path) {
         this.share = share;
         this.path = path;
         currentShare = share;
@@ -56,5 +58,13 @@ public abstract class ShareFileHandler {
             }
         }
         return null;
+    }
+
+    public String getPath() {
+        if (path.isDirectory()) {
+            return path.getPath();
+        } else {
+            return path.getPath().substring(0, path.getPath().length() - path.getName().length());
+        }
     }
 }

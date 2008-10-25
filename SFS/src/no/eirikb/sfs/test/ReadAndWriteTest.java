@@ -1,5 +1,6 @@
 package no.eirikb.sfs.test;
 
+import java.io.File;
 import no.eirikb.sfs.share.ShareFileReader;
 import no.eirikb.sfs.share.ShareFileWriter;
 import no.eirikb.sfs.share.ShareFolder;
@@ -13,13 +14,13 @@ import no.eirikb.sfs.share.ShareUtility;
 public class ReadAndWriteTest {
 
     public static void main(String[] args) {
-        String filePath = "/home/eirikb/test";
-        ShareFolder writeShare = ShareUtility.createShare(filePath).getShare();
-        ShareFolder readShare = ShareUtility.createShare(filePath).getShare();
+        File file = new File("/home/eirikb/Desktop/[DB]_Bleach_191_[B10B96E2].avi");
+        ShareFolder writeShare = ShareUtility.createShare(file).getShare();
+        ShareFolder readShare = ShareUtility.createShare(file).getShare();
 
-        ShareFileReader reader = new ShareFileReader(writeShare, "/home/eirikb/test");
+        ShareFileReader reader = new ShareFileReader(writeShare, file);
 
-        ShareFileWriter writer = new ShareFileWriter(readShare, "downloads/" + readShare.getName());
+        ShareFileWriter writer = new ShareFileWriter(readShare, new File("downloads/" + readShare.getName()));
 
         long end = readShare.getSize() - 1;
         int buffer = 10000;

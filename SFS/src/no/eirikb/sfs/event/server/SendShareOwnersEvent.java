@@ -8,9 +8,7 @@
  */
 package no.eirikb.sfs.event.server;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,26 +52,14 @@ public class SendShareOwnersEvent extends Event {
         for (String s : IPs) {
             System.out.println(s);
         }
-        final long size = share.getShare().getSize();
-        final String fileName = share.getName();
+
+        final SFSClientListener l2 = listener;
 
         try {
             c = new Client(new ClientAction() {
 
                 public void onClientEvent(Event event) {
-                    System.out.println(".. Start!");
-                    try {
-                        InputStream in = c.getSocket().getInputStream();
-                        byte[] b = new byte[(int) size];
-                        in.read(b);
-                        FileOutputStream fOut = new FileOutputStream(fileName);
-                        fOut.write(b);
-                        in.close();
-                        fOut.close();
-                        System.out.println("Done! :D");
-                    } catch (IOException ex) {
-                        Logger.getLogger(SendShareOwnersEvent.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    event.execute(l2, c.getSocket());
                 }
             });
             c.connect(IPs[0], ports[0]);
@@ -86,6 +72,10 @@ public class SendShareOwnersEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void execute(SFSClientListener listener, Socket socket) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }
