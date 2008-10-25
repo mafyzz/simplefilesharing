@@ -9,9 +9,8 @@
 package no.eirikb.sfs.share;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +21,7 @@ import java.util.logging.Logger;
  */
 public class ShareFileWriter extends ShareFileHandler {
 
-    private FileOutputStream currentStream;
+    private RandomAccessFile currentStream;
     private int written;
 
     public ShareFileWriter(ShareFolder share, File path) {
@@ -53,9 +52,10 @@ public class ShareFileWriter extends ShareFileHandler {
         selectNextFile();
         try {
             new File(getPath() + currentFile.getPath()).mkdirs();
-            currentStream = new FileOutputStream(getPath() + currentFile.getPath() + currentFile.getName());
-            written = 0;
-        } catch (FileNotFoundException ex) {
+            currentStream = new RandomAccessFile(getPath() + currentFile.getPath() + currentFile.getName(), "rw");
+               currentStream.setLength(currentFile.getSize());
+            currentStream.seek(currentFile.getStart());
+        } catch (IOException ex) {
             Logger.getLogger(ShareFileWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
