@@ -29,19 +29,19 @@ public class ShareFileWriter extends ShareFileHandler {
         resetStream();
     }
 
-    public void write(byte[] b) {
+    public void write(byte[] b, int length) {
         try {
-            if (b.length + written <= currentFile.getStop()) {
-                currentStream.write(b);
-                written += b.length;
+            if (length + written <= currentFile.getStop()) {
+                currentStream.write(b, 0, length);
+                written += length;
             } else {
                 byte[] b2 = new byte[(int) (currentFile.getStop() - written)];
                 System.arraycopy(b, 0, b2, 0, b2.length);
-                write(b2);
+                write(b2, b2.length);
                 resetStream();
-                byte[] b3 = new byte[b.length - b2.length];
+                byte[] b3 = new byte[length - b2.length];
                 System.arraycopy(b, b2.length, b3, 0, b3.length);
-                write(b3);
+                write(b3, b3.length);
             }
         } catch (IOException ex) {
             Logger.getLogger(ShareFileWriter.class.getName()).log(Level.SEVERE, null, ex);
@@ -53,8 +53,9 @@ public class ShareFileWriter extends ShareFileHandler {
         try {
             new File(getPath() + currentFile.getPath()).mkdirs();
             currentStream = new RandomAccessFile(getPath() + currentFile.getPath() + currentFile.getName(), "rw");
-               currentStream.setLength(currentFile.getSize());
-            currentStream.seek(currentFile.getStart());
+            //       currentStream.setLength(currentFile.getSize());
+            currentStream.seek((int) currentFile.getStart());
+            written = (int) currentFile.getStart();
         } catch (IOException ex) {
             Logger.getLogger(ShareFileWriter.class.getName()).log(Level.SEVERE, null, ex);
         }

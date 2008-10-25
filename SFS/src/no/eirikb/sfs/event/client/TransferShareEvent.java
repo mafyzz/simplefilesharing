@@ -15,7 +15,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.LocalShare;
-import no.eirikb.sfs.client.Lock;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
@@ -58,24 +57,14 @@ public class TransferShareEvent extends Event {
             ShareFileWriter writer = new ShareFileWriter(share.getShare(),
                     new File(sfsClient.getShareFolder() + readShare.getName()));
             long end = readShare.getSize() - 1;
-            int buffer = 10000;
-            long tot = 0;
-            Lock.lock = true;
             InputStream in = client.getSocket().getInputStream();
-            while (tot < end) {
-                buffer = in.available();
-                if (buffer > 0) {
-                    buffer = buffer < end - tot ? buffer : (int) (end - tot);
-                    byte[] b = new byte[buffer];
-                    in.read(b);
-                    writer.write(b);
-                    tot += buffer;
-                }
+
+            byte[] buf = new byte[1024];
+            int b;
+            while ((b = in.read(buf)) >= 0) {
+                writer.write(buf, b);
             }
-            if (in.available() > 0) {
-                System.out.println("FUCK");
-            }
-            in.read(new byte[in.available()]);
+
             System.out.println("Part done!");
             LocalShare ls = sfsClient.getLocalShares().get(share.getHash());
             ls.incShares();

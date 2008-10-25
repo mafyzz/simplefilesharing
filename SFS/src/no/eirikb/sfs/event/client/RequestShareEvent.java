@@ -61,9 +61,10 @@ public class RequestShareEvent extends Event {
             while (tot < end) {
                 buffer = buffer < end - tot ? buffer : (int) (end - tot);
                 out.write(reader.read(buffer));
-                out.flush();
                 tot += buffer;
             }
+            out.flush();
+            out.close();
         } catch (IOException ex) {
             //    Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
         } finally {

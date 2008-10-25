@@ -11,6 +11,7 @@ package no.eirikb.sfs.share;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,7 +22,7 @@ import java.util.logging.Logger;
  */
 public class ShareFileReader extends ShareFileHandler {
 
-    private FileInputStream currentStream;
+    private RandomAccessFile currentStream;
 
     public ShareFileReader(ShareFolder share, File path) {
         super(share, path);
@@ -31,8 +32,8 @@ public class ShareFileReader extends ShareFileHandler {
     public byte[] read(int length) {
         try {
             byte[] b = new byte[length];
-            if (length >= currentFile.getStop() - (currentFile.getSize() - currentStream.available())) {
-                byte[] b2 = new byte[(int) (currentFile.getStop() - (currentFile.getSize() - currentStream.available()))];
+            if (length >= currentFile.getStop() - (currentFile.getSize() - currentStream.length())) {
+                byte[] b2 = new byte[(int) (currentFile.getStop() - (currentFile.getSize() - currentStream.length()))];
                 currentStream.read(b2);
                 resetStream();
                 byte[] b3 = read(length - b2.length);
@@ -52,8 +53,8 @@ public class ShareFileReader extends ShareFileHandler {
     private void resetStream() {
         selectNextFile();
         try {
-            currentStream = new FileInputStream(getPath() + currentFile.getPath() + currentFile.getName());
-            currentStream.skip(currentFile.getStart());
+            currentStream = new RandomAccessFile(getPath() + currentFile.getPath() + currentFile.getName(), "r");
+            currentStream.seek((int) currentFile.getStart());
         } catch (IOException ex) {
             Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
         }
