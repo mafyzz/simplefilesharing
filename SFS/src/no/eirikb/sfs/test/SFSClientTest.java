@@ -13,7 +13,7 @@ import no.eirikb.sfs.event.client.GetShareOwnersEvent;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
 import no.eirikb.sfs.share.Share;
-import no.eirikb.sfs.share.ShareCreator;
+import no.eirikb.sfs.share.ShareUtility;
 
 /**
  *
@@ -40,7 +40,7 @@ public class SFSClientTest {
             }
         }, "localhost", 31337, listenPort);
         String fileName = "/home/eirikb/Desktop/[DB]_Bleach_191_[B10B96E2].avi";
-        Share share = ShareCreator.createShare(fileName);
+        Share share = ShareUtility.createShare(fileName);
         client.getLocalShares().put(share.getHash(), new LocalShare(new File(fileName), share));
         client.getClient().sendObject(new CreateShareEvent(share));
 

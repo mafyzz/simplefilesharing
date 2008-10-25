@@ -15,7 +15,7 @@ import java.io.File;
  * @author eirikb
  * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
-public class ShareCreator {
+public class ShareUtility {
 
     private static long tot;
 
@@ -25,6 +25,7 @@ public class ShareCreator {
         ShareFolder shareFolder = new ShareFolder(file.getName());
         share.setShare(shareFolder);
         insert(shareFolder, file);
+        deleteEmptyFolders(shareFolder);
         share.setHash(new String(share.getName() + shareFolder.getSize() + shareFolder.getTotal()).hashCode());
         return share;
     }
@@ -54,10 +55,11 @@ public class ShareCreator {
         ShareFolder newShare = new ShareFolder(share.getName());
         tot = 0;
         cropShareFolder(startShare, newShare, start, stop);
+        deleteEmptyFolders(newShare);
         return newShare;
     }
 
-    private synchronized static void cropShareFolder(ShareFolder share, ShareFolder newShare,
+    private static void cropShareFolder(ShareFolder share, ShareFolder newShare,
             long start, long stop) {
         if (tot >= 0) {
             for (ShareFile fl : share.getFiles()) {
@@ -81,11 +83,31 @@ public class ShareCreator {
                     }
                 }
             }
+
             for (ShareFolder sh : share.getFolders()) {
                 ShareFolder newShare2 = new ShareFolder(sh.getName());
                 newShare.getFolders().add(newShare2);
                 cropShareFolder(sh, newShare2, start, stop);
             }
+        }
+    }
+
+    private static ShareFolder deleteEmptyFolders(ShareFolder share) {
+        ShareFolder[] shares = share.getFolders().toArray(new ShareFolder[0]);
+        for (ShareFolder sh : shares) {
+            if (sh.getFolders().size() == 0 && sh.getFiles().size() == 0) {
+                share.getFolders().remove(sh);
+            } else {
+                ShareFolder sh2 = deleteEmptyFolders(sh);
+                if (sh2 != null) {
+                    share.getFolders().remove(sh2);
+                }
+            }
+        }
+        if (share.getFolders().size() > 0 || share.getFiles().size() > 0) {
+            return null;
+        } else {
+            return share;
         }
     }
 }
