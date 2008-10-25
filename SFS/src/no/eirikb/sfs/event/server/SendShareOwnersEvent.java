@@ -9,7 +9,6 @@
 package no.eirikb.sfs.event.server;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.client.Client;
@@ -47,8 +46,6 @@ public class SendShareOwnersEvent extends Event {
 
     public void execute(SFSClientListener listener, SFSClient client) {
         client.getShares().add(share);
-        System.out.println("Start hacking!");
-        System.out.println(share);
         for (String s : IPs) {
             System.out.println(s);
         }
@@ -59,12 +56,11 @@ public class SendShareOwnersEvent extends Event {
             c = new Client(new ClientAction() {
 
                 public void onClientEvent(Event event) {
-                    event.execute(l2, c.getSocket());
+                    event.execute(l2, c);
                 }
             });
             c.connect(IPs[0], ports[0]);
             c.sendObject(new RequestShareEvent(share));
-            System.out.println("testse");
         } catch (IOException ex) {
             Logger.getLogger(SendShareOwnersEvent.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -75,7 +71,7 @@ public class SendShareOwnersEvent extends Event {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void execute(SFSClientListener listener, Socket socket) {
+    public void execute(SFSClientListener listener, Client client) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

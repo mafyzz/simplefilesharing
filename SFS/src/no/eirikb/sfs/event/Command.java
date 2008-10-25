@@ -8,7 +8,7 @@
  */
 package no.eirikb.sfs.event;
 
-import java.net.Socket;
+import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.server.Server;
@@ -27,6 +27,6 @@ public interface Command {
     public void execute(SFSClientListener listener, SFSClient client);
 
     public void execute(SFSClientListener listener, SFSClient client, Server server);
-    
-    public void execute(SFSClientListener listener, Socket socket);
+
+    public void execute(SFSClientListener listener, Client client);
 }

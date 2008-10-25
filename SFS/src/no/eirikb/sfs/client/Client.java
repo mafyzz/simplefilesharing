@@ -27,9 +27,11 @@ public class Client extends Thread {
     private ClientAction action;
     private Socket socket;
     private ObjectOutputStream objectOut;
+    private boolean run;
 
     public Client(ClientAction action) {
         this.action = action;
+        run = true;
     }
 
     public void connect(String host, int port) throws IOException {
@@ -50,11 +52,15 @@ public class Client extends Thread {
         }
     }
 
+    public void setRun(boolean run) {
+        this.run = run;
+    }
+
     @Override
     public void run() {
         try {
             ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream());
-            while (true) {
+            while (run) {
                 Event event = (Event) objectIn.readObject();
                 action.onClientEvent(event);
             }

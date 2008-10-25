@@ -11,9 +11,9 @@ package no.eirikb.sfs.event.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
@@ -44,12 +44,13 @@ public class RequestShareEvent extends Event {
 
     }
 
-    public void execute(SFSClientListener listener, Socket socket) {
+    public void execute(SFSClientListener listener, Client client) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
         server.sendObject(new TransferShareEvent(part));
+        server.setRun(false);
         try {
             File path = client.getLocalShares().get(part.getHash()).getFile();
             ShareFileReader reader = new ShareFileReader(part.getShare(), path);
@@ -60,10 +61,17 @@ public class RequestShareEvent extends Event {
             while (tot < end) {
                 buffer = buffer < end - tot ? buffer : (int) (end - tot);
                 out.write(reader.read(buffer));
+                out.flush();
                 tot += buffer;
             }
         } catch (IOException ex) {
-            Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
+            //    Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                server.getSocket().close();
+            } catch (IOException ex) {
+                //       Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }

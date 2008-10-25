@@ -8,7 +8,6 @@
  */
 package no.eirikb.sfs.server;
 
-import no.eirikb.sfs.server.ServerAction;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -31,12 +30,14 @@ public class Server extends Thread {
     private Socket socket;
     private ServerAction action;
     private ObjectOutputStream objectOut;
+    private boolean run;
 
     public Server(Socket socket, ServerAction action) {
         try {
             this.socket = socket;
             this.action = action;
             objectOut = new ObjectOutputStream(socket.getOutputStream());
+            run = true;
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -59,11 +60,15 @@ public class Server extends Thread {
         }
     }
 
+    public void setRun(boolean run) {
+        this.run = run;
+    }
+
     @Override
     public void run() {
         try {
             ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream());
-            while (true) {
+            while (run) {
                 Event event = (Event) objectIn.readObject();
                 action.onServerEvent(this, event);
             }
