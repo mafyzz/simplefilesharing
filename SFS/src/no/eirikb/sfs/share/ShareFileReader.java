@@ -19,83 +19,43 @@ import java.util.logging.Logger;
  * @author eirikb
  * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
-public class ShareFileReader {
+public class ShareFileReader extends ShareFileHandler {
 
-    private ShareFolder share;
-    private String path;
-    private ShareFolder currentShare;
-    private ShareFile currentFile;
     private FileInputStream currentStream;
 
     public ShareFileReader(ShareFolder share, String path) {
-        this.share = share;
-        currentShare = share;
-        selectNextFile();
+        super(share, path);
+        resetStream();
     }
 
     public byte[] read(int length) {
-        byte[] b = readFromFile(length);
-        if (b == null) {
-            return null;
-        }
-        if (b.length == length) {
-            return b;
-        } else {
-            selectNextFile();
-            return readFromFile(length - b.length);
-
-        }
-    }
-
-    private byte[] readFromFile(int length) {
         try {
-            if (currentFile.getSize() - currentStream.available() > currentFile.getStart()) {
-                if (currentStream.available() < currentFile.getStop()) {
-                    if (currentFile.getStop() - currentStream.available() > length) {
-                        length = (int) (currentFile.getStop() - currentStream.available());
-                    }
-                    byte[] b = new byte[length];
-                    currentStream.read(b);
-                    return b;
-                }
-            }
-
-        } catch (IOException ex) {
-            Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    private void selectNextFile() {
-        try {
-            if (currentShare.getFiles().size() > 0) {
-                currentFile = currentShare.getFiles().get(0);
-                currentShare.getFiles().remove(0);
-                currentStream.close();
-                currentStream = new FileInputStream(path + currentFile.getPath());
+            byte[] b = new byte[length];
+            if (length >= currentFile.getStop() - (currentFile.getSize() - currentStream.available())) {
+                byte[] b2 = new byte[(int) (currentFile.getStop() - (currentFile.getSize() - currentStream.available()))];
+                currentStream.read(b2);
+                resetStream();
+                byte[] b3 = read(length - b2.length);
+                System.arraycopy(b2, 0, b, 0, b2.length);
+                System.arraycopy(b3, 0, b, b2.length, b3.length);
+                return b;
             } else {
-                currentShare = getNotEmptyFolder(share);
-                selectNextFile();
+                currentStream.read(b);
+                return b;
             }
         } catch (IOException ex) {
             Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return null;
     }
 
-    private ShareFolder getNotEmptyFolder(ShareFolder folder) {
-        if (folder.getFiles().size() > 0) {
-            return folder;
-        } else {
-            ShareFolder[] folders = folder.getFolders().toArray(new ShareFolder[0]);
-            for (ShareFolder sh : folders) {
-                ShareFolder sh2 = getNotEmptyFolder(sh);
-                if (sh2 != null) {
-                    return sh2;
-                } else {
-                    folder.getFolders().remove(sh2);
-                }
-            }
+    private void resetStream() {
+        selectNextFile();
+        System.out.println("- " + currentFile.getPath());
+        try {
+            currentStream = new FileInputStream(path + currentFile.getPath());
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
     }
 }

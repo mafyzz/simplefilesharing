@@ -8,6 +8,8 @@
  */
 package no.eirikb.sfs.share;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -18,27 +20,17 @@ import java.util.logging.Logger;
  * @author eirikb
  * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
-public class ShareFileWriter {
+public class ShareFileWriter extends ShareFileHandler {
 
-    private ShareFolder share;
-    private String path;
-    private ShareFolder currentShare;
-    private ShareFile currentFile;
     private FileOutputStream currentStream;
     private int written;
 
     public ShareFileWriter(ShareFolder share, String path) {
-        this.share = share;
-        currentShare = new ShareFolder(share.getName());
-        written = 0;
-        selectNextFile();
+        super(share, path);
+        resetStream();
     }
 
     public void write(byte[] b) {
-    }
-
-    private void writeToFile(byte[] b) {
-
         try {
             if (b.length + written <= currentFile.getStop()) {
                 currentStream.write(b);
@@ -46,47 +38,27 @@ public class ShareFileWriter {
             } else {
                 byte[] b2 = new byte[(int) (currentFile.getStop() - written)];
                 System.arraycopy(b, 0, b2, 0, b2.length);
-                writeToFile(b2);
-                //SELECT FILE!
-                byte[] b3 = new byte[(int) (currentFile.getSize() - currentFile.getStop())];
-                System.arraycopy(b, (int) currentFile.getStop(), b3, 0, b3.length);
-                writeToFile(b3);
+                write(b2);
+                resetStream();
+                byte[] b3 = new byte[b.length - b2.length];
+                System.arraycopy(b, b2.length, b3, 0, b3.length);
+                write(b3);
             }
         } catch (IOException ex) {
             Logger.getLogger(ShareFileWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private void selectNextFile() {
-        try {
-            if (currentShare.getFiles().size() > 0) {
-                currentFile = currentShare.getFiles().get(0);
-                currentShare.getFiles().remove(0);
-                currentStream.close();
-                currentStream = new FileOutputStream(path + currentFile.getPath());
-            } else {
-                currentShare = getNotEmptyFolder(share);
-                selectNextFile();
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+    private void resetStream() {
+        selectNextFile();
 
-    private ShareFolder getNotEmptyFolder(ShareFolder folder) {
-        if (folder.getFiles().size() > 0) {
-            return folder;
-        } else {
-            ShareFolder[] folders = folder.getFolders().toArray(new ShareFolder[0]);
-            for (ShareFolder sh : folders) {
-                ShareFolder sh2 = getNotEmptyFolder(sh);
-                if (sh2 != null) {
-                    return sh2;
-                } else {
-                    folder.getFolders().remove(sh2);
-                }
-            }
+        try {
+            String dir = path + currentFile.getPath().substring(0, currentFile.getPath().length() - currentFile.getName().length() - 1);
+            new File(dir).mkdirs();
+            currentStream = new FileOutputStream(path + currentFile.getPath());
+            written = 0;
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ShareFileWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
     }
 }
