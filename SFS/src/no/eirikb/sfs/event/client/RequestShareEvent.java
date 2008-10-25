@@ -44,7 +44,7 @@ public class RequestShareEvent extends Event {
 
     }
 
-    public void execute(SFSClientListener listener, Client client) {
+    public void execute(SFSClientListener listener, SFSClient sfsClient, Client client) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

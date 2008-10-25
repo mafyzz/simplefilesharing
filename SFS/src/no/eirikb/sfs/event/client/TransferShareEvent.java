@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.client.Client;
+import no.eirikb.sfs.client.LocalShare;
 import no.eirikb.sfs.client.Lock;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
@@ -50,11 +51,12 @@ public class TransferShareEvent extends Event {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void execute(SFSClientListener listener, Client client) {
+    public void execute(SFSClientListener listener, SFSClient sfsClient, Client client) {
         try {
             client.setRun(false);
             ShareFolder readShare = share.getShare();
-            ShareFileWriter writer = new ShareFileWriter(share.getShare(), new File("downloads/" + readShare.getName()));
+            ShareFileWriter writer = new ShareFileWriter(share.getShare(),
+                    new File(sfsClient.getShareFolder() + readShare.getName()));
             long end = readShare.getSize() - 1;
             int buffer = 10000;
             long tot = 0;
@@ -70,8 +72,16 @@ public class TransferShareEvent extends Event {
                     tot += buffer;
                 }
             }
+            if (in.available() > 0) {
+                System.out.println("FUCK");
+            }
             in.read(new byte[in.available()]);
-            System.out.println("DONE!");
+            System.out.println("Part done!");
+            LocalShare ls = sfsClient.getLocalShares().get(share.getHash());
+            ls.incShares();
+            if (ls.getShares() == ls.getTotalShares()) {
+                System.out.println("DONE!!!");
+            }
         } catch (IOException ex) {
             Logger.getLogger(TransferShareEvent.class.getName()).log(Level.SEVERE, null, ex);
         } finally {

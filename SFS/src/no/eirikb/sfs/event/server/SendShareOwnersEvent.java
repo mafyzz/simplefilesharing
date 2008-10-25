@@ -8,11 +8,13 @@
  */
 package no.eirikb.sfs.event.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.ClientAction;
+import no.eirikb.sfs.client.LocalShare;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
@@ -50,13 +52,20 @@ public class SendShareOwnersEvent extends Event {
             System.out.println(s);
         }
 
-        final SFSClientListener l2 = listener;
+        LocalShare ls = new LocalShare(new File(client.getShareFolder() + share.getShare().getName()), share);
+        ls.setTotalShares(1);
+        LocalShare ls2;
+        if ((ls2 = client.getLocalShares().put(share.getHash(), ls)) != null) {
+            client.getLocalShares().put(ls2.getShare().getHash(), ls);
+        }
 
+        final SFSClientListener l2 = listener;
+        final SFSClient sfsClient = client;
         try {
             c = new Client(new ClientAction() {
 
                 public void onClientEvent(Event event) {
-                    event.execute(l2, c);
+                    event.execute(l2, sfsClient, c);
                 }
             });
             c.connect(IPs[0], ports[0]);
@@ -71,7 +80,7 @@ public class SendShareOwnersEvent extends Event {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void execute(SFSClientListener listener, Client client) {
+    public void execute(SFSClientListener listener, SFSClient sfsClient, Client client) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }
