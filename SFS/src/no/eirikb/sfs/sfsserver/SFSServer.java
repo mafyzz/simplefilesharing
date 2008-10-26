@@ -46,11 +46,11 @@ public class SFSServer implements ServerAction {
         return shares;
     }
 
-    public List<User> getUsers() {
+    public synchronized List<User> getUsers() {
         return users;
     }
 
-    public void addServer(Server server) {
+    public synchronized void addServer(Server server) {
         users.add(new User(server));
     }
 

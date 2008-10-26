@@ -37,13 +37,13 @@ public class CreateShareEvent extends Event {
         server.getShares().add(share);
         ShareHolder shareHolder = new ShareHolder(share);
         server.getShareHodlers().put(share.getHash(), shareHolder);
-        for (User u : server.getUsers()) {
+        for (User u : server.getUsers().toArray(new User[0])) {
             if (u.getServer().equals(client)) {
                 shareHolder.getUsers().add(u);
                 break;
             }
         }
-        for (User u : server.getUsers()) {
+        for (User u : server.getUsers().toArray(new User[0])) {
             u.getServer().sendObject(new SendAddShareEvent(share));
         }
         listener.createShareEvent(share);

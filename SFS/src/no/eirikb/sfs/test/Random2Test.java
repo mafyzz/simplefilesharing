@@ -42,7 +42,7 @@ public class Random2Test {
 
         RandomAccessFile write = new RandomAccessFile("Bleach2.avi", "rw");
         int b;
-        byte[] buf = new byte[1024];
+        byte[] buf = new byte[client.getReceiveBufferSize()];
         while ((b = client.getInputStream().read(buf)) >= 0) {
             write.write(buf, 0, b);   
         }
@@ -54,10 +54,10 @@ public class Random2Test {
         ServerSocket serverSocket = new ServerSocket(12345);
         Socket server = serverSocket.accept();
 
-        RandomAccessFile read = new RandomAccessFile("Bleach1.avi", "r");
+        RandomAccessFile read = new RandomAccessFile("/users/eirikb/Desktop/Heroes.S03E06.HDTV.XviD-LOL.avi", "r");
 
         int b;
-        byte[] buf = new byte[1024];
+        byte[] buf = new byte[server.getSendBufferSize()];
         while ((b = read.read(buf)) >= 0) {
             server.getOutputStream().write(buf, 0, b);
         }

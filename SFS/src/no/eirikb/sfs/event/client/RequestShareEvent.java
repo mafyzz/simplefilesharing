@@ -55,7 +55,7 @@ public class RequestShareEvent extends Event {
             File path = client.getLocalShares().get(part.getHash()).getFile();
             ShareFileReader reader = new ShareFileReader(part.getShare(), path);
             long end = part.getShare().getSize() - 1;
-            int buffer = 10000;
+            int buffer = server.getSocket().getSendBufferSize();
             long tot = 0;
             OutputStream out = server.getSocket().getOutputStream();
             while (tot < end) {
@@ -66,12 +66,12 @@ public class RequestShareEvent extends Event {
             out.flush();
             out.close();
         } catch (IOException ex) {
-            //    Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
+         //       Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 server.getSocket().close();
             } catch (IOException ex) {
-                //       Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
+           //            Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

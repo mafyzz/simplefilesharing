@@ -52,14 +52,14 @@ public class TransferShareEvent extends Event {
 
     public void execute(SFSClientListener listener, SFSClient sfsClient, Client client) {
         try {
+            System.out.println("OUS");
             client.setRun(false);
             ShareFolder readShare = share.getShare();
             ShareFileWriter writer = new ShareFileWriter(share.getShare(),
                     new File(sfsClient.getShareFolder() + readShare.getName()));
-            long end = readShare.getSize() - 1;
             InputStream in = client.getSocket().getInputStream();
 
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[client.getSocket().getReceiveBufferSize()];
             int b;
             while ((b = in.read(buf)) >= 0) {
                 writer.write(buf, b);

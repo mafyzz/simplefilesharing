@@ -30,16 +30,14 @@ public class SFSClientTest {
             }
         }, 31337);
         int listenPort = (int) (Math.random() * (65536 - 1024) + 1024);
-
-
-
+        
         SFSClient client = new SFSClient(new SFSClientListener() {
 
             public void addShare(Share share) {
                 System.out.println("Add Share!");
             }
         }, "localhost", 31337, listenPort);
-        File file = new File("/home/eirikb/Desktop/[DB]_Bleach_191_[B10B96E2].avi");
+        File file = new File("/users/eirikb/Desktop/Heroes.S03E06.HDTV.XviD-LOL.avi");
       //  File file = new File("/home/eirikb/test");
         Share share = ShareUtility.createShare(file);
         client.getLocalShares().put(share.getHash(), new LocalShare(file, share));

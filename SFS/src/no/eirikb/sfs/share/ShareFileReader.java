@@ -8,6 +8,7 @@
  */
 package no.eirikb.sfs.share;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,31 +24,42 @@ import java.util.logging.Logger;
 public class ShareFileReader extends ShareFileHandler {
 
     private RandomAccessFile currentStream;
+    private int read;
 
     public ShareFileReader(ShareFolder share, File path) {
         super(share, path);
         resetStream();
     }
 
-    public byte[] read(int length) {
+    public void read(byte[] b, int start) {
         try {
-            byte[] b = new byte[length];
-            if (length >= currentFile.getStop() - (currentFile.getSize() - currentStream.length())) {
-                byte[] b2 = new byte[(int) (currentFile.getStop() - (currentFile.getSize() - currentStream.length()))];
-                currentStream.read(b2);
-                resetStream();
-                byte[] b3 = read(length - b2.length);
-                System.arraycopy(b2, 0, b, 0, b2.length);
-                System.arraycopy(b3, 0, b, b2.length, b3.length);
-                return b;
+            if (start > b.length) {
+                System.out.println("FUCK");
+            }
+            // byte array smaller then file size
+            if (read + b.length < currentStream.length()) {
+                //First time run
+                if (start == 0) {
+                    currentStream.readFully(b);
+                    read += b.length;
+                // Byte array is not empty!
+                } else {
+                    byte[] b2 = new byte[b.length - start];
+                    currentStream.readFully(b2);
+                    System.arraycopy(b2, 0, b, start, b2.length);
+                    read += b2.length;
+                }
+            // Byte array is longer then file length
             } else {
-                currentStream.read(b);
-                return b;
+                byte[] b2 = new byte[(int) (currentStream.length() - read)];
+                currentStream.readFully(b2);
+                System.arraycopy(b2, 0, b, start, b2.length);
+                resetStream();
+                read(b, b2.length + start);
             }
         } catch (IOException ex) {
             Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
     }
 
     private void resetStream() {
@@ -55,6 +67,7 @@ public class ShareFileReader extends ShareFileHandler {
         try {
             currentStream = new RandomAccessFile(getPath() + currentFile.getPath() + currentFile.getName(), "r");
             currentStream.seek((int) currentFile.getStart());
+            read = (int) currentFile.getStart();
         } catch (IOException ex) {
             Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
         }
