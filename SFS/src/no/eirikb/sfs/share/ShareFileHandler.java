@@ -39,6 +39,8 @@ public abstract class ShareFileHandler {
             currentShare = getNotEmptyFolder(share);
             if (currentShare != null) {
                 selectNextFile();
+            } else {
+                currentFile = null;
             }
         }
     }

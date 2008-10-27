@@ -60,7 +60,7 @@ public class RequestShareEvent extends Event {
             OutputStream out = server.getSocket().getOutputStream();
             while (tot < end) {
                 buffer = buffer < end - tot ? buffer : (int) (end - tot);
-                out.write(reader.read(buffer));
+               // out.write(reader.read(buffer));
                 tot += buffer;
             }
             out.flush();

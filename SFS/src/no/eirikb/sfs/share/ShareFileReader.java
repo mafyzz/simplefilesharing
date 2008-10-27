@@ -37,7 +37,7 @@ public class ShareFileReader extends ShareFileHandler {
                 System.out.println("FUCK");
             }
             // byte array smaller then file size
-            if (read + b.length < currentStream.length()) {
+            if (read + b.length < currentFile.getStop()) {
                 //First time run
                 if (start == 0) {
                     currentStream.readFully(b);
@@ -51,25 +51,31 @@ public class ShareFileReader extends ShareFileHandler {
                 }
             // Byte array is longer then file length
             } else {
-                byte[] b2 = new byte[(int) (currentStream.length() - read)];
+                byte[] b2 = new byte[(int) (currentFile.getStop() - read)];
                 currentStream.readFully(b2);
                 System.arraycopy(b2, 0, b, start, b2.length);
-                resetStream();
-                read(b, b2.length + start);
+                if (resetStream()) {
+                    read(b, b2.length + start);
+                }
             }
         } catch (IOException ex) {
             Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private void resetStream() {
+    private boolean resetStream() {
         selectNextFile();
+        if (currentFile == null) {
+            return false;
+        }
         try {
             currentStream = new RandomAccessFile(getPath() + currentFile.getPath() + currentFile.getName(), "r");
             currentStream.seek((int) currentFile.getStart());
             read = (int) currentFile.getStart();
+            return true;
         } catch (IOException ex) {
             Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
 }
