@@ -11,8 +11,6 @@ package no.eirikb.sfs.event.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
@@ -22,6 +20,7 @@ import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
 import no.eirikb.sfs.share.Share;
 import no.eirikb.sfs.share.ShareFileReader;
+import no.eirikb.sfs.share.ShareFolder;
 
 /**
  *
@@ -30,9 +29,11 @@ import no.eirikb.sfs.share.ShareFileReader;
  */
 public class RequestShareEvent extends Event {
 
-    private Share part;
+    private Integer hash;
+    private ShareFolder part;
 
-    public RequestShareEvent(Share part) {
+    public RequestShareEvent(Integer hash, ShareFolder part) {
+        this.hash = hash;
         this.part = part;
     }
 
@@ -49,29 +50,31 @@ public class RequestShareEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
-        server.sendObject(new TransferShareEvent(part));
+        server.sendObject(new TransferShareEvent(hash, part));
         server.setRun(false);
         try {
-            File path = client.getLocalShares().get(part.getHash()).getFile();
-            ShareFileReader reader = new ShareFileReader(part.getShare(), path);
-            long end = part.getShare().getSize() - 1;
-            int buffer = server.getSocket().getSendBufferSize();
+            File path = client.getLocalShares().get(hash).getFile();
+            ShareFileReader reader = new ShareFileReader(part, path);
+            long end = part.getSize() - 1;
+            //int buffer = server.getSocket().getSendBufferSize();
+            byte[] buffer = new byte[10000];
             long tot = 0;
             OutputStream out = server.getSocket().getOutputStream();
             while (tot < end) {
-                buffer = buffer < end - tot ? buffer : (int) (end - tot);
-               // out.write(reader.read(buffer));
-                tot += buffer;
+                //buffer = buffer < end - tot ? buffer : (int) (end - tot);
+                reader.read(buffer, 0);
+                out.write(buffer);
+                tot += buffer.length;
             }
             out.flush();
             out.close();
         } catch (IOException ex) {
-         //       Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
+            //       Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 server.getSocket().close();
             } catch (IOException ex) {
-           //            Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
+                //            Logger.getLogger(RequestShareEvent.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

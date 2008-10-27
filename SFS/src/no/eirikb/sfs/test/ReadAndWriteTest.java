@@ -30,25 +30,25 @@ public class ReadAndWriteTest {
 
         File writeFile = new File("downloads/" + readShare.getName());
 
-      //   ShareFileWriter w1 = new ShareFileWriter(writeShare.getShare(), writeFile);
+        //   ShareFileWriter w1 = new ShareFileWriter(writeShare.getShare(), writeFile);
 
         ShareFileWriter w1 = new ShareFileWriter(ShareUtility.cropShare(writeShare, 0, split), writeFile);
         ShareFileWriter w2 = new ShareFileWriter(ShareUtility.cropShare(writeShare, split, split * 2), writeFile);
 
-       
+
 
         //long end = readShare.getShare().getSize();
         //long end = split;
         long end = readShare.getShare().getSize();
-         long tot = 0;
+        long tot = 0;
         byte[] b = new byte[10000];
         while (tot < end) {
             //buffer = buffer < tot - end ? buffer : (int)(tot - end);
             r1.read(b, 0);
             w1.write(b, b.length);
             tot += b.length;
-            
-           r2.read(b, 0);
+
+            r2.read(b, 0);
             w2.write(b, b.length);
             tot += b.length;
         }

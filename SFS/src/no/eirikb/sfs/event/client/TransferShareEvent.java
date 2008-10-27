@@ -32,10 +32,12 @@ import no.eirikb.sfs.share.ShareFolder;
  */
 public class TransferShareEvent extends Event {
 
-    private Share share;
+    Integer hash;
+    private ShareFolder part;
 
-    public TransferShareEvent(Share share) {
-        this.share = share;
+    public TransferShareEvent(Integer hash, ShareFolder part) {
+        this.hash = hash;
+        this.part = part;
     }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
@@ -54,9 +56,8 @@ public class TransferShareEvent extends Event {
         try {
             System.out.println("OUS");
             client.setRun(false);
-            ShareFolder readShare = share.getShare();
-            ShareFileWriter writer = new ShareFileWriter(share.getShare(),
-                    new File(sfsClient.getShareFolder() + readShare.getName()));
+            ShareFileWriter writer = new ShareFileWriter(part,
+                    new File(sfsClient.getShareFolder() + part.getName()));
             InputStream in = client.getSocket().getInputStream();
 
             byte[] buf = new byte[client.getSocket().getReceiveBufferSize()];
@@ -66,7 +67,7 @@ public class TransferShareEvent extends Event {
             }
 
             System.out.println("Part done!");
-            LocalShare ls = sfsClient.getLocalShares().get(share.getHash());
+            LocalShare ls = sfsClient.getLocalShares().get(hash);
             ls.incShares();
             if (ls.getShares() == ls.getTotalShares()) {
                 System.out.println("DONE!!!");

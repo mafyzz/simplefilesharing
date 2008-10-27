@@ -23,6 +23,8 @@ import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
 import no.eirikb.sfs.share.Share;
+import no.eirikb.sfs.share.ShareFolder;
+import no.eirikb.sfs.share.ShareUtility;
 
 /**
  *
@@ -47,33 +49,34 @@ public class SendShareOwnersEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client) {
-        client.getShares().add(share);
-        for (String s : IPs) {
-            System.out.println(s);
-        }
-
         LocalShare ls = new LocalShare(new File(client.getShareFolder() + share.getShare().getName()), share);
-        ls.setTotalShares(1);
+        ls.setTotalShares(IPs.length);
         LocalShare ls2;
         if ((ls2 = client.getLocalShares().put(share.getHash(), ls)) != null) {
             client.getLocalShares().put(ls2.getShare().getHash(), ls);
         }
 
-        final SFSClientListener l2 = listener;
-        final SFSClient sfsClient = client;
-        try {
-            c = new Client(new ClientAction() {
+        client.getShares().add(share);
+        
+        
+        int size = (int)(share.getShare().getSize() / IPs.length);
+        for (int i = 0; i < IPs.length; i++) {
+            ShareFolder part = ShareUtility.cropShare(share, i * size, i * size + size);
+            final SFSClientListener l2 = listener;
+            final SFSClient sfsClient = client;
+            try {
+                c = new Client(new ClientAction() {
 
-                public void onClientEvent(Event event) {
-                    event.execute(l2, sfsClient, c);
-                }
-            });
-            c.connect(IPs[0], ports[0]);
-            c.sendObject(new RequestShareEvent(share));
-        } catch (IOException ex) {
-            Logger.getLogger(SendShareOwnersEvent.class.getName()).log(Level.SEVERE, null, ex);
+                    public void onClientEvent(Event event) {
+                        event.execute(l2, sfsClient, c);
+                    }
+                });
+                c.connect(IPs[i], ports[i]);
+                c.sendObject(new RequestShareEvent(share.getHash(), part));
+            } catch (IOException ex) {
+                Logger.getLogger(SendShareOwnersEvent.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
