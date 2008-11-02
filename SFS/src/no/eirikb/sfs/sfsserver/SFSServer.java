@@ -29,13 +29,14 @@ public class SFSServer implements ServerAction {
     private Map<Integer, ShareHolder> shareHodlers;
     private List<Share> shares;
     private SFSServerListener listener;
+    private ServerListener serverListener;
 
     public SFSServer(SFSServerListener listener, int port) {
         this.listener = listener;
         users = new ArrayList<User>();
         shareHodlers = new Hashtable<Integer, ShareHolder>();
         shares = new ArrayList<Share>();
-        new ServerListener(this, port);
+        serverListener = new ServerListener(this, port);
     }
 
     public Map<Integer, ShareHolder> getShareHodlers() {
@@ -50,11 +51,31 @@ public class SFSServer implements ServerAction {
         return users;
     }
 
-    public synchronized void addServer(Server server) {
-        users.add(new User(server));
+    public synchronized void onServerConnect(Server server) {
+        User user = new User(server);
+        users.add(user);
+        listener.onClientConnect(user);
     }
 
     public void onServerEvent(Server server, Event event) {
         event.execute(listener, server, this);
+    }
+
+    public void onServerDisconnect(Server server) {
+        User user = null;
+        System.out.println("...");
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getServer().equals(server)) {
+                user = users.remove(i);
+                break;
+            }
+        }
+        if (user != null) {
+            listener.onClientDisconnect(user);
+        }
+    }
+
+    public void close() {
+        serverListener.close();
     }
 }

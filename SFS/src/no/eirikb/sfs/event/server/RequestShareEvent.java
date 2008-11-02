@@ -6,8 +6,9 @@
  * this stuff is worth it, you can buy me a beer in return Eirik Brandtzæg
  * =============================================================================
  */
-package no.eirikb.sfs.event.client;
+package no.eirikb.sfs.event.server;
 
+import no.eirikb.sfs.event.client.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;

@@ -6,8 +6,9 @@
  * this stuff is worth it, you can buy me a beer in return Eirik Brandtzæg
  * =============================================================================
  */
-package no.eirikb.sfs.event.server;
+package no.eirikb.sfs.event.client;
 
+import no.eirikb.sfs.event.server.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -18,7 +19,7 @@ import no.eirikb.sfs.client.LocalShare;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
-import no.eirikb.sfs.event.client.RequestShareEvent;
+import no.eirikb.sfs.event.server.RequestShareEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;

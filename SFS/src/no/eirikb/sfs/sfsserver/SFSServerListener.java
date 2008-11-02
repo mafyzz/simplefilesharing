@@ -18,4 +18,8 @@ import no.eirikb.sfs.share.Share;
 public interface SFSServerListener {
 
     public void createShareEvent(Share share);
+
+    public void onClientConnect(User user);
+
+    public void onClientDisconnect(User user);
 }

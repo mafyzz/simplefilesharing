@@ -6,8 +6,9 @@
  * this stuff is worth it, you can buy me a beer in return Eirik Brandtzæg
  * =============================================================================
  */
-package no.eirikb.sfs.event.server;
+package no.eirikb.sfs.event.client;
 
+import java.util.List;
 import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
@@ -22,12 +23,12 @@ import no.eirikb.sfs.share.Share;
  * @author eirikb
  * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
-public class SendAddShareEvent extends Event {
+public class SendSharesEvent extends Event {
 
-    public Share share;
+    private List<Share> shares;
 
-    public SendAddShareEvent(Share share) {
-        this.share = share;
+    public SendSharesEvent(List<Share> shares) {
+        this.shares = shares;
     }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
@@ -35,8 +36,7 @@ public class SendAddShareEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client) {
-        client.getShares().add(share);
-        listener.addShare(share);
+        client.setShares(shares);
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {

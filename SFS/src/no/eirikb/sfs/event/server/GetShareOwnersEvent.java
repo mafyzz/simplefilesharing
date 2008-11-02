@@ -6,37 +6,42 @@
  * this stuff is worth it, you can buy me a beer in return Eirik Brandtzæg
  * =============================================================================
  */
-package no.eirikb.sfs.event.client;
+package no.eirikb.sfs.event.server;
 
+import java.util.List;
 import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
+import no.eirikb.sfs.event.client.SendShareOwnersEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
 import no.eirikb.sfs.sfsserver.User;
+import no.eirikb.sfs.share.Share;
 
 /**
  *
  * @author eirikb
  * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
-public class SendUserInfoEvent extends Event {
+public class GetShareOwnersEvent extends Event {
 
-    private int port;
+    private Share share;
 
-    public SendUserInfoEvent(int port) {
-        this.port = port;
+    public GetShareOwnersEvent(Share share) {
+        this.share = share;
     }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
-        for (User u : server.getUsers()) {
-            if (u.getServer().equals(client)) {
-                u.setPort(port);
-                break;
-            }
+        List<User> users = server.getShareHodlers().get(share.getHash()).getUsers();
+        String[] IPs = new String[users.size()];
+        int[] ports = new int[users.size()];
+        for (int i = 0; i < IPs.length; i++) {
+            IPs[i] = users.get(i).getServer().getIP();
+            ports[i] = users.get(i).getPort();
         }
+        client.sendObject(new SendShareOwnersEvent(share, IPs, ports));
     }
 
     public void execute(SFSClientListener listener, SFSClient client) {

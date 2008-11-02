@@ -8,7 +8,6 @@
  */
 package no.eirikb.sfs.event.server;
 
-import java.util.List;
 import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
@@ -16,27 +15,32 @@ import no.eirikb.sfs.event.Event;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
-import no.eirikb.sfs.share.Share;
+import no.eirikb.sfs.sfsserver.User;
 
 /**
  *
  * @author eirikb
  * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
-public class SendSharesEvent extends Event {
+public class SendUserInfoEvent extends Event {
 
-    private List<Share> shares;
+    private int port;
 
-    public SendSharesEvent(List<Share> shares) {
-        this.shares = shares;
+    public SendUserInfoEvent(int port) {
+        this.port = port;
     }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        for (User u : server.getUsers()) {
+            if (u.getServer().equals(client)) {
+                u.setPort(port);
+                break;
+            }
+        }
     }
 
     public void execute(SFSClientListener listener, SFSClient client) {
-        client.setShares(shares);
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {

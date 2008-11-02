@@ -6,26 +6,47 @@
  * this stuff is worth it, you can buy me a beer in return Eirik Brandtzæg
  * =============================================================================
  */
-package no.eirikb.sfs.event.client;
+package no.eirikb.sfs.event.server;
 
 import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
-import no.eirikb.sfs.event.server.SendSharesEvent;
+import no.eirikb.sfs.event.client.SendAddShareEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
+import no.eirikb.sfs.sfsserver.ShareHolder;
+import no.eirikb.sfs.sfsserver.User;
+import no.eirikb.sfs.share.Share;
 
 /**
  *
  * @author eirikb
  * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
-public class GetSharesEvent extends Event {
+public class CreateShareEvent extends Event {
+
+    private Share share;
+
+    public CreateShareEvent(Share share) {
+        this.share = share;
+    }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
-        client.sendObject(new SendSharesEvent(server.getShares()));
+        server.getShares().add(share);
+        ShareHolder shareHolder = new ShareHolder(share);
+        server.getShareHodlers().put(share.getHash(), shareHolder);
+        for (User u : server.getUsers().toArray(new User[0])) {
+            if (u.getServer().equals(client)) {
+                shareHolder.getUsers().add(u);
+                break;
+            }
+        }
+        for (User u : server.getUsers().toArray(new User[0])) {
+            u.getServer().sendObject(new SendAddShareEvent(share));
+        }
+        listener.createShareEvent(share);
     }
 
     public void execute(SFSClientListener listener, SFSClient client) {

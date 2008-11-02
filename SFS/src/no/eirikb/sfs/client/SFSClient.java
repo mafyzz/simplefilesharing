@@ -13,11 +13,9 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import no.eirikb.sfs.event.Event;
-import no.eirikb.sfs.event.client.GetSharesEvent;
-import no.eirikb.sfs.event.client.SendUserInfoEvent;
+import no.eirikb.sfs.event.server.GetSharesEvent;
+import no.eirikb.sfs.event.server.SendUserInfoEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.server.ServerAction;
 import no.eirikb.sfs.server.ServerListener;
@@ -26,7 +24,7 @@ import no.eirikb.sfs.share.Share;
 
 /**
  *
- * @author eirikbClientCommand
+ * @author eirikb
  * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
 public class SFSClient implements ClientAction, ServerAction {
@@ -37,22 +35,19 @@ public class SFSClient implements ClientAction, ServerAction {
     private SFSClientListener listener;
     private Map<Integer, LocalShare> localShares;
     private String shareFolder;
+    private ServerListener serverListener;
 
-    public SFSClient(SFSClientListener listener, String host, int port, int listenPort) {
+    public SFSClient(SFSClientListener listener, String host, int port, int listenPort) throws IOException {
         this.listener = listener;
         client = new Client(this);
         users = new ArrayList<User>();
         shares = new ArrayList<Share>();
         localShares = new Hashtable<Integer, LocalShare>();
         shareFolder = "downloads/";
-        try {
-            client.connect(host, port);
-            client.sendObject(new SendUserInfoEvent(listenPort));
-            client.sendObject(new GetSharesEvent());
-            new ServerListener(this, listenPort);
-        } catch (IOException ex) {
-            Logger.getLogger(SFSClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        client.connect(host, port);
+        client.sendObject(new SendUserInfoEvent(listenPort));
+        client.sendObject(new GetSharesEvent());
+        serverListener = new ServerListener(this, listenPort);
     }
 
     public void setShares(List<Share> shares) {
@@ -79,7 +74,7 @@ public class SFSClient implements ClientAction, ServerAction {
         event.execute(listener, this);
     }
 
-    public void addServer(Server server) {
+    public void onServerConnect(Server server) {
         //  throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -105,5 +100,13 @@ public class SFSClient implements ClientAction, ServerAction {
 
     public void setShareFolder(String shareFolder) {
         this.shareFolder = shareFolder;
+    }
+
+    public void onServerDisconnect(Server server) {
+        // throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void closeServerListener() {
+        serverListener.close();
     }
 }

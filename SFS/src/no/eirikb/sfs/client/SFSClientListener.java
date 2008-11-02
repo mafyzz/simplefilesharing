@@ -13,6 +13,7 @@ import no.eirikb.sfs.share.Share;
 /**
  *
  * @author eirikb
+ * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
 public interface SFSClientListener {
 

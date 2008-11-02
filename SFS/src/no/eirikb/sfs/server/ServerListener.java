@@ -20,29 +20,39 @@ import java.util.logging.Logger;
  */
 public class ServerListener extends Thread {
 
+    private ServerSocket listener;
     private ServerAction action;
-    private int port;
 
-    public ServerListener(ServerAction action, int port) {
+    public ServerListener(ServerAction action, int port) throws IOException {
         this.action = action;
-        this.port = port;
+        listener = new ServerSocket(port);
         start();
+    }
+
+    public void close() {
+        try {
+            listener.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ServerListener.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public void run() {
-        ServerSocket listener = null;
+        listener = null;
         try {
-            listener = new ServerSocket(port);
             while (true) {
                 Server server = new Server(listener.accept(), action);
-                action.addServer(server);
+                action.onServerConnect(server);
             }
         } catch (IOException ex) {
             Logger.getLogger(ServerListener.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
-                listener.close();
+                System.out.println("Listener close...");
+                if (listener != null) {
+                    listener.close();
+                }
             } catch (IOException ex) {
                 Logger.getLogger(ServerListener.class.getName()).log(Level.SEVERE, null, ex);
             }
