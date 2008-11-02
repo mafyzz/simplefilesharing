@@ -8,6 +8,7 @@
  */
 package no.eirikb.sfs.sfsserver;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,7 +32,7 @@ public class SFSServer implements ServerAction {
     private SFSServerListener listener;
     private ServerListener serverListener;
 
-    public SFSServer(SFSServerListener listener, int port) {
+    public SFSServer(SFSServerListener listener, int port) throws IOException {
         this.listener = listener;
         users = new ArrayList<User>();
         shareHodlers = new Hashtable<Integer, ShareHolder>();

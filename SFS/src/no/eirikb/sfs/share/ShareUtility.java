@@ -20,6 +20,24 @@ public class ShareUtility {
     private static long tot;
     private static int pathLength;
 
+    public static Share createShare(File[] files, String name) {
+        File file = files[0];
+        pathLength = file.getAbsolutePath().length();
+        if (file.isFile()) {
+            pathLength = file.getAbsolutePath().substring(0,
+                    file.getAbsolutePath().length() - file.getName().length() - 1).length();
+        }
+        Share share = new Share(name);
+        ShareFolder shareFolder = new ShareFolder(name);
+        share.setShare(shareFolder);
+        for (File f : files) {
+            insert(shareFolder, file);
+        }
+        deleteEmptyFolders(shareFolder);
+        share.setHash(new String(share.getName() + shareFolder.getSize() + shareFolder.getTotal()).hashCode());
+        return share;
+    }
+
     public static Share createShare(File file) {
         pathLength = file.getAbsolutePath().length();
         if (file.isFile()) {

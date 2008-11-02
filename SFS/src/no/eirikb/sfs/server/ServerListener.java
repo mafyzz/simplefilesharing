@@ -39,7 +39,6 @@ public class ServerListener extends Thread {
 
     @Override
     public void run() {
-        listener = null;
         try {
             while (true) {
                 Server server = new Server(listener.accept(), action);
