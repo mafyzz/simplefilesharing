@@ -50,11 +50,11 @@ public class Share implements Serializable {
         long bytes = share.getSize();
         String size = bytes + " bytes";
         if (bytes >= Math.pow(1024, 1) && bytes < Math.pow(1024, 2)) {
-            size = (bytes / Math.pow(1024, 1)) + " KiB";
+            size = Math.round(bytes / Math.pow(1024, 1)) + " KiB";
         } else if (bytes >= Math.pow(1024, 2) && bytes < Math.pow(1024, 3)) {
-            size = (bytes / Math.pow(1024, 2)) + " MiB";
+            size = Math.round(bytes / Math.pow(1024, 2)) + " MiB";
         } else if (bytes >= Math.pow(1024, 3)) {
-            size = (bytes / Math.pow(1024, 3)) + " GiB";
+            size = Math.round(bytes / Math.pow(1024, 3)) + " GiB";
         }
         return name + " (" + share.getTotal() + " files, " + size + ") [" + hash + "]";
 
