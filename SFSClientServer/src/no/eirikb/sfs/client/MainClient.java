@@ -14,7 +14,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
 import no.eirikb.sfs.event.server.CreateShareEvent;
 import no.eirikb.sfs.share.Share;
 import no.eirikb.sfs.share.ShareUtility;
@@ -62,8 +61,6 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
         root.add(new DefaultMutableTreeNode(share));
         availableSharesTree.expandRow(0);
-
-//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private void show(String panelName) {
