@@ -14,6 +14,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
+import no.eirikb.sfs.event.server.CreateShareEvent;
 import no.eirikb.sfs.share.Share;
 import no.eirikb.sfs.share.ShareUtility;
 
@@ -55,7 +57,13 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
     }
 
     public void addShare(Share share) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        System.out.println("add share");
+        DefaultTreeModel model = (DefaultTreeModel) availableSharesTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+        root.add(new DefaultMutableTreeNode(share));
+        availableSharesTree.expandRow(0);
+
+//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private void show(String panelName) {
@@ -93,7 +101,7 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
         transferList = new javax.swing.JList();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
-        addFileShareMenuItem = new javax.swing.JMenuItem();
+        addShareMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SFS (Simple File Sharing)");
@@ -143,7 +151,7 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
         availableSharesLabel.setText("Available shares");
         availableSharesPanel.add(availableSharesLabel, java.awt.BorderLayout.NORTH);
 
-        availableSharesTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode()));
+        availableSharesTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Shares")));
         jScrollPane2.setViewportView(availableSharesTree);
 
         availableSharesPanel.add(jScrollPane2, java.awt.BorderLayout.CENTER);
@@ -169,13 +177,13 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
 
         fileMenu.setText("File");
 
-        addFileShareMenuItem.setText("Add share (Single file)");
-        addFileShareMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        addShareMenuItem.setText("Add share");
+        addShareMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addFileShareMenuItemActionPerformed(evt);
+                addShareMenuItemActionPerformed(evt);
             }
         });
-        fileMenu.add(addFileShareMenuItem);
+        fileMenu.add(addShareMenuItem);
 
         menuBar.add(fileMenu);
 
@@ -191,15 +199,28 @@ private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:even
     }
 }//GEN-LAST:event_formWindowClosing
 
-private void addFileShareMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFileShareMenuItemActionPerformed
+private void addShareMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addShareMenuItemActionPerformed
     JFileChooser fileChooser = new JFileChooser();
     fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
     fileChooser.setMultiSelectionEnabled(true);
     fileChooser.showOpenDialog(this);
-    String shareName = JOptionPane.showInputDialog("Name of share:");
-    Share share = ShareUtility.createShare(fileChooser.getSelectedFiles(), shareName);
-    System.out.println(share.getShare());
-}//GEN-LAST:event_addFileShareMenuItemActionPerformed
+    if (fileChooser.getSelectedFiles().length > 0) {
+        String shareName = "";
+        if (fileChooser.getSelectedFiles().length == 1) {
+            shareName = JOptionPane.showInputDialog(this, "Name of share:", fileChooser.getSelectedFiles()[0].getName());
+        } else {
+            shareName = JOptionPane.showInputDialog(this, "Name of share:");
+        }
+        if (shareName != null && shareName.length() > 0) {
+            System.out.println(shareName);
+            Share share = ShareUtility.createShare(fileChooser.getSelectedFiles(), shareName);
+            System.out.println(share.getShare());
+            DefaultListModel model = (DefaultListModel) mySharesList.getModel();
+            model.addElement(share);
+            client.getClient().sendObject(new CreateShareEvent(share));
+        }
+    }
+}//GEN-LAST:event_addShareMenuItemActionPerformed
 
     /**
     * @param args the command line arguments
@@ -213,7 +234,7 @@ private void addFileShareMenuItemActionPerformed(java.awt.event.ActionEvent evt)
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenuItem addFileShareMenuItem;
+    private javax.swing.JMenuItem addShareMenuItem;
     private javax.swing.JLabel availableSharesLabel;
     private javax.swing.JPanel availableSharesPanel;
     private javax.swing.JTree availableSharesTree;

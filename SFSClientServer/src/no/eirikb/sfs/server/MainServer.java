@@ -46,14 +46,16 @@ public class MainServer implements SFSServerListener {
     }
 
     public void createShareEvent(Share share) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        System.out.println("Create share! " + share.getName());
     }
 
     public void onClientConnect(User user) {
-        System.out.println("Client connect! " + user.getServer().getIP());
+        System.out.println("Client connect: " + user.getServer().getIP());
+     //   System.out.println("Client connect! " + user.getServer().getIP());
     }
 
     public void onClientDisconnect(User user) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        System.out.println("Client disconnect: " + user.getServer().getIP());
+      //  throw new UnsupportedOperationException("Not supported yet.");
     }
 }

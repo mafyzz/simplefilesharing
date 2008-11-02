@@ -13,12 +13,12 @@
             <Property name="text" type="java.lang.String" value="File"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="addFileShareMenuItem">
+            <MenuItem class="javax.swing.JMenuItem" name="addShareMenuItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Add share (Single file)"/>
+                <Property name="text" type="java.lang.String" value="Add share"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addFileShareMenuItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addShareMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>
@@ -208,7 +208,7 @@
                             <Component class="javax.swing.JTree" name="availableSharesTree">
                               <Properties>
                                 <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                                  <Connection code="new DefaultTreeModel(new DefaultMutableTreeNode())" type="code"/>
+                                  <Connection code="new DefaultTreeModel(new DefaultMutableTreeNode(&quot;Shares&quot;))" type="code"/>
                                 </Property>
                               </Properties>
                             </Component>
