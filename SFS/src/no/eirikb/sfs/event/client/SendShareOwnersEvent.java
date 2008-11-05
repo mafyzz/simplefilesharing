@@ -50,6 +50,8 @@ public class SendShareOwnersEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client) {
+
+        System.out.println("Got list! Total of " + IPs.length + " IPs");
         LocalShare ls = new LocalShare(new File(client.getShareFolder() + share.getShare().getName()), share);
         ls.setTotalShares(IPs.length);
         LocalShare ls2;
@@ -58,9 +60,9 @@ public class SendShareOwnersEvent extends Event {
         }
 
         client.getShares().add(share);
-        
-        
-        int size = (int)(share.getShare().getSize() / IPs.length);
+
+
+        int size = (int) (share.getShare().getSize() / IPs.length);
         for (int i = 0; i < IPs.length; i++) {
             ShareFolder part = ShareUtility.cropShare(share, i * size, i * size + size);
             final SFSClientListener l2 = listener;

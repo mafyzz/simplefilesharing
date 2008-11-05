@@ -55,6 +55,7 @@ public class RequestShareEvent extends Event {
         server.setRun(false);
         try {
             File path = client.getLocalShares().get(hash).getFile();
+            System.out.println("!!!  1!!  " + path);
             ShareFileReader reader = new ShareFileReader(part, path);
             long end = part.getSize() - 1;
             //int buffer = server.getSocket().getSendBufferSize();
