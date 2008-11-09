@@ -15,7 +15,10 @@ import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import no.eirikb.sfs.event.server.CreateShareEvent;
+import no.eirikb.sfs.event.server.GetShareOwnersEvent;
 import no.eirikb.sfs.share.Share;
+import no.eirikb.sfs.share.ShareFile;
+import no.eirikb.sfs.share.ShareFolder;
 import no.eirikb.sfs.share.ShareUtility;
 
 /**
@@ -40,7 +43,8 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
                 loginTextArea.append("\nServer found: " + server);
                 loginTextArea.append("\nConnecting and setting up local server...");
                 try {
-                    client = new SFSClient(mainClient, server, 31338, 31340);
+                    int listenPort = (int) (Math.random() * (65500 - 1024) + 1024);
+                    client = new SFSClient(mainClient, server, 31338, listenPort);
                     loginTextArea.append("\nDone");
                     show("main");
                 } catch (IOException ex) {
@@ -59,13 +63,30 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
         System.out.println("add share");
         DefaultTreeModel model = (DefaultTreeModel) availableSharesTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-        root.add(new DefaultMutableTreeNode(share));
+        model.insertNodeInto(createShareNode(share), root, root.getChildCount());
         availableSharesTree.expandRow(0);
     }
 
     private void show(String panelName) {
         CardLayout layout = (CardLayout) containerPanel.getLayout();
         layout.show(containerPanel, panelName);
+    }
+
+    private DefaultMutableTreeNode createShareNode(Share share) {
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(share);
+        addNodesToShareNode(node, share.getShare());
+        return node;
+    }
+
+    private void addNodesToShareNode(DefaultMutableTreeNode node, ShareFolder folder) {
+        for (ShareFile file : folder.getFiles()) {
+            node.add(new DefaultMutableTreeNode(file));
+        }
+        for (ShareFolder f : folder.getFolders()) {
+            DefaultMutableTreeNode folderNode = new DefaultMutableTreeNode(f);
+            node.add(folderNode);
+            addNodesToShareNode(folderNode, f);
+        }
     }
 
     /** This method is called from within the constructor to
@@ -78,6 +99,8 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
     private void initComponents() {
 
         jSplitPane1 = new javax.swing.JSplitPane();
+        AvailableSharesPopup = new javax.swing.JPopupMenu();
+        downloadShareMenuItem = new javax.swing.JMenuItem();
         containerPanel = new javax.swing.JPanel();
         loginPanel = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
@@ -99,6 +122,14 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         addShareMenuItem = new javax.swing.JMenuItem();
+
+        downloadShareMenuItem.setText("Download");
+        downloadShareMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                downloadShareMenuItemActionPerformed(evt);
+            }
+        });
+        AvailableSharesPopup.add(downloadShareMenuItem);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SFS (Simple File Sharing)");
@@ -148,6 +179,7 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
         availableSharesLabel.setText("Available shares");
         availableSharesPanel.add(availableSharesLabel, java.awt.BorderLayout.NORTH);
 
+        availableSharesTree.setComponentPopupMenu(AvailableSharesPopup);
         availableSharesTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Shares")));
         jScrollPane2.setViewportView(availableSharesTree);
 
@@ -215,9 +247,18 @@ private void addShareMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
             DefaultListModel model = (DefaultListModel) mySharesList.getModel();
             model.addElement(share);
             client.getClient().sendObject(new CreateShareEvent(share));
+            client.getLocalShares().put(share.getHash(), new LocalShare(fileChooser.getSelectedFiles()[0], share));
         }
     }
 }//GEN-LAST:event_addShareMenuItemActionPerformed
+
+private void downloadShareMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downloadShareMenuItemActionPerformed
+    if (availableSharesTree.getSelectionPath() != null) {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) availableSharesTree.getSelectionPath().getLastPathComponent();
+        Share share = (Share) node.getUserObject();
+        client.getClient().sendObject(new GetShareOwnersEvent(share));
+    }
+}//GEN-LAST:event_downloadShareMenuItemActionPerformed
 
     /**
     * @param args the command line arguments
@@ -231,11 +272,13 @@ private void addShareMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPopupMenu AvailableSharesPopup;
     private javax.swing.JMenuItem addShareMenuItem;
     private javax.swing.JLabel availableSharesLabel;
     private javax.swing.JPanel availableSharesPanel;
     private javax.swing.JTree availableSharesTree;
     private javax.swing.JPanel containerPanel;
+    private javax.swing.JMenuItem downloadShareMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JSplitPane horizontalSplitPane;
     private javax.swing.JScrollPane jScrollPane1;
