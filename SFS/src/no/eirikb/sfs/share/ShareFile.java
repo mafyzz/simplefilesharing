@@ -66,4 +66,9 @@ public class ShareFile implements Serializable {
     public String getPath() {
         return path;
     }
+
+    @Override
+    public String toString() {
+        return name + "  -  size: " + Share.hSize(size) + " (" + start + ", " + stop + ")";
+    }
 }

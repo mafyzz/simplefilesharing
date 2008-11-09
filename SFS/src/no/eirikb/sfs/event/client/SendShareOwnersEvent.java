@@ -1,10 +1,8 @@
 /*
- * =============================================================================
  * "THE BEER-WARE LICENSE" (Revision 42):
  * <eirikb@google.com> wrote this file. As long as you retain this notice you
  * can do whatever you want with this stuff. If we meet some day, and you think
  * this stuff is worth it, you can buy me a beer in return Eirik Brandtzæg
- * =============================================================================
  */
 package no.eirikb.sfs.event.client;
 
@@ -65,6 +63,7 @@ public class SendShareOwnersEvent extends Event {
         int size = (int) (share.getShare().getSize() / IPs.length);
         for (int i = 0; i < IPs.length; i++) {
             ShareFolder part = ShareUtility.cropShare(share, i * size, i * size + size);
+            part.setSize(size);
             final SFSClientListener l2 = listener;
             final SFSClient sfsClient = client;
             try {

@@ -45,9 +45,7 @@ public class Share implements Serializable {
         return hash;
     }
 
-    @Override
-    public String toString() {
-        long bytes = share.getSize();
+    public static String hSize(long bytes) {
         String size = bytes + " bytes";
         if (bytes >= Math.pow(1024, 1) && bytes < Math.pow(1024, 2)) {
             size = Math.round(bytes / Math.pow(1024, 1)) + " KiB";
@@ -56,7 +54,12 @@ public class Share implements Serializable {
         } else if (bytes >= Math.pow(1024, 3)) {
             size = Math.round(bytes / Math.pow(1024, 3)) + " GiB";
         }
-        return name + " (" + share.getTotal() + " files, " + size + ") [" + hash + "]";
+        return size;
+    }
 
+    @Override
+    public String toString() {
+        long bytes = share.getSize();
+        return name + " (" + share.getTotal() + " files, " + hSize(bytes) + ") [" + hash + "]";
     }
 }

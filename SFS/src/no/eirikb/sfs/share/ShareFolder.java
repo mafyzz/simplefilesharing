@@ -60,7 +60,7 @@ public class ShareFolder implements Serializable {
     }
 
     public String toString() {
-        return toString(0);
+        return name + "  -  Size: " + Share.hSize(size) + " files: " + total;
     }
 
     public String toString(int tabLength) {

@@ -12,7 +12,9 @@ import no.eirikb.sfs.event.client.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map.Entry;
 import no.eirikb.sfs.client.Client;
+import no.eirikb.sfs.client.LocalShare;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
@@ -54,16 +56,21 @@ public class RequestShareEvent extends Event {
         server.sendObject(new TransferShareEvent(hash, part));
         server.setRun(false);
         try {
+            System.out.println("fuck? " + hash);
+
+            for (Entry<Integer, LocalShare> entry : client.getLocalShares().entrySet()) {
+                System.out.println(entry.getKey() + " - " + entry.getValue().getShare());
+            }
+            
             File path = client.getLocalShares().get(hash).getFile();
             System.out.println("!!!  1!!  " + path);
             ShareFileReader reader = new ShareFileReader(part, path);
             long end = part.getSize() - 1;
-            //int buffer = server.getSocket().getSendBufferSize();
+            
             byte[] buffer = new byte[10000];
             long tot = 0;
             OutputStream out = server.getSocket().getOutputStream();
             while (tot < end) {
-                //buffer = buffer < end - tot ? buffer : (int) (end - tot);
                 reader.read(buffer, 0);
                 out.write(buffer);
                 tot += buffer.length;

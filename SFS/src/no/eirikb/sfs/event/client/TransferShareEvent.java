@@ -54,19 +54,18 @@ public class TransferShareEvent extends Event {
 
     public void execute(SFSClientListener listener, SFSClient sfsClient, Client client) {
         try {
-            System.out.println("OUS");
+            System.out.println("Downloading...");
             client.setRun(false);
             ShareFileWriter writer = new ShareFileWriter(part,
                     new File(sfsClient.getShareFolder() + part.getName()));
             InputStream in = client.getSocket().getInputStream();
-
+            
             byte[] buf = new byte[client.getSocket().getReceiveBufferSize()];
             int b;
             while ((b = in.read(buf)) >= 0) {
                 writer.write(buf, b);
             }
 
-            System.out.println("Part done!");
             LocalShare ls = sfsClient.getLocalShares().get(hash);
             ls.incShares();
             if (ls.getShares() == ls.getTotalShares()) {
