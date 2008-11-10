@@ -8,12 +8,14 @@
  */
 package no.eirikb.sfs.client;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import no.eirikb.sfs.event.Event;
+import no.eirikb.sfs.event.server.CreateShareEvent;
 import no.eirikb.sfs.event.server.GetSharesEvent;
 import no.eirikb.sfs.event.server.SendUserInfoEvent;
 import no.eirikb.sfs.server.Server;
@@ -21,6 +23,7 @@ import no.eirikb.sfs.server.ServerAction;
 import no.eirikb.sfs.server.ServerListener;
 import no.eirikb.sfs.sfsserver.User;
 import no.eirikb.sfs.share.Share;
+import no.eirikb.sfs.share.ShareUtility;
 
 /**
  *
@@ -48,6 +51,12 @@ public class SFSClient implements ClientAction, ServerAction {
         client.sendObject(new SendUserInfoEvent(listenPort));
         client.sendObject(new GetSharesEvent());
         serverListener = new ServerListener(this, listenPort);
+    }
+
+    public void createShare(File file) {
+        Share share = ShareUtility.createShare(file);
+        localShares.put(share.getHash(), new LocalShare(file, share));
+        client.sendObject(new CreateShareEvent(share));
     }
 
     public void setShares(List<Share> shares) {
