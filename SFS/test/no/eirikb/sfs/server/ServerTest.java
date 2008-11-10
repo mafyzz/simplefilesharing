@@ -94,6 +94,7 @@ public class ServerTest {
 
         Thread.sleep(1000);
         System.out.println("");
+        assertEquals(client1.getShares().size(), 1);
         assertEquals(client1.getShares().size(), client2.getShares().size());
 
         System.out.println("Client 3: Create clinet 3");
@@ -114,9 +115,47 @@ public class ServerTest {
         System.out.println("Client 1 : Close connection");
         client1.getClient().setRun(false);
         client1.getClient().getSocket().close();
+
+        Thread.sleep(1000);
+
+        assertEquals(client2.getShares().size(), 0);
+        assertEquals(client3.getShares().size(), 0);
+
+        System.out.println("Client 2: Create share");
+        client2.createShare(new File("/export/home/eirikb/test"));
+
+        Thread.sleep(1000);
+        System.out.println("");
+
+        assertEquals(client2.getShares().size(), 1);
+        assertEquals(client3.getShares().size(), 1);
+
+        System.out.println("Client 1: Create client, again");
+        client1 = new SFSClient(new SFSClientListener() {
+
+            public void addShare(Share share) {
+                System.out.println("Client 1: Add share");
+            }
+
+            public void removeShare(Share share) {
+                System.out.println("Client 1: Remove share");
+            }
+        }, "localhost", 31338, listenPort + 9);
+
+        Thread.sleep(1000);
+        System.out.println("");
+
+        assertEquals(client1.getShares().size(), 1);
+        assertEquals(client2.getShares().size(), 1);
+        assertEquals(client3.getShares().size(), 1);
+
+        client3.createShare(new File("/export/home/eirikb/test"));
         
-        System.out.println("1");
-        Thread.sleep(2000);
-        System.out.println("2");
+        Thread.sleep(1000);
+        System.out.println("");
+        
+        assertEquals(client1.getShares().size(), 1);
+        assertEquals(client2.getShares().size(), 1);
+        assertEquals(client3.getShares().size(), 1);
     }
 }
