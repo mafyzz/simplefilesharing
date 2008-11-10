@@ -17,9 +17,9 @@ import no.eirikb.sfs.event.Event;
  */
 public interface ServerAction {
 
-    public void onServerConnect(Server server);
+    public void onClientConnect(Server server);
 
     public void onServerEvent(Server server, Event event);
 
-    public void onServerDisconnect(Server server);
+    public void onClientDisconnect(Server server);
 }

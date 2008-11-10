@@ -42,7 +42,7 @@ public class ServerListener extends Thread {
         try {
             while (true) {
                 Server server = new Server(listener.accept(), action);
-                action.onServerConnect(server);
+                action.onClientConnect(server);
             }
         } catch (IOException ex) {
             Logger.getLogger(ServerListener.class.getName()).log(Level.SEVERE, null, ex);

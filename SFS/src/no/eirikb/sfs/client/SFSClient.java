@@ -74,7 +74,7 @@ public class SFSClient implements ClientAction, ServerAction {
         event.execute(listener, this);
     }
 
-    public void onServerConnect(Server server) {
+    public void onClientConnect(Server server) {
         //  throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -102,7 +102,7 @@ public class SFSClient implements ClientAction, ServerAction {
         this.shareFolder = shareFolder;
     }
 
-    public void onServerDisconnect(Server server) {
+    public void onClientDisconnect(Server server) {
         // throw new UnsupportedOperationException("Not supported yet.");
     }
 

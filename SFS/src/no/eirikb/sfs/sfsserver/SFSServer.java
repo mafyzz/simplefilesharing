@@ -14,6 +14,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import no.eirikb.sfs.event.Event;
+import no.eirikb.sfs.event.client.SendAddSharesEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.server.ServerAction;
 import no.eirikb.sfs.server.ServerListener;
@@ -52,19 +53,20 @@ public class SFSServer implements ServerAction {
         return users;
     }
 
-    public synchronized void onServerConnect(Server server) {
+    public synchronized void onClientConnect(Server server) {
         User user = new User(server);
         users.add(user);
         listener.onClientConnect(user);
+        user.getServer().sendObject(new SendAddSharesEvent(shares));
     }
 
     public void onServerEvent(Server server, Event event) {
         event.execute(listener, server, this);
     }
 
-    public void onServerDisconnect(Server server) {
+    public void onClientDisconnect(Server server) {
         User user = null;
-        System.out.println("...");
+        System.out.println("Disconnect! Remove shares?!");
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getServer().equals(server)) {
                 user = users.remove(i);
@@ -72,6 +74,7 @@ public class SFSServer implements ServerAction {
             }
         }
         if (user != null) {
+            System.out.println("User found, removing user...");
             listener.onClientDisconnect(user);
         }
     }

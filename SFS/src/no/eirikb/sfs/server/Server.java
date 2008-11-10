@@ -79,7 +79,7 @@ public class Server extends Thread {
         } finally {
             try {
                 socket.close();
-                action.onServerDisconnect(this);
+                action.onClientDisconnect(this);
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
