@@ -24,7 +24,7 @@ import no.eirikb.sfs.share.Share;
  */
 public class SendAddShareEvent extends Event {
 
-    public Share share;
+    private Share share;
 
     public SendAddShareEvent(Share share) {
         this.share = share;

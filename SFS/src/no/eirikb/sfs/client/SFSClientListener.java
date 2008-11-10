@@ -18,4 +18,6 @@ import no.eirikb.sfs.share.Share;
 public interface SFSClientListener {
 
     public void addShare(Share share);
+
+    public void removeShare(Share share);
 }

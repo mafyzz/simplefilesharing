@@ -11,10 +11,12 @@ package no.eirikb.sfs.sfsserver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import no.eirikb.sfs.event.Event;
 import no.eirikb.sfs.event.client.SendAddSharesEvent;
+import no.eirikb.sfs.event.client.SendRemoveShareEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.server.ServerAction;
 import no.eirikb.sfs.server.ServerListener;
@@ -28,7 +30,7 @@ import no.eirikb.sfs.share.Share;
 public class SFSServer implements ServerAction {
 
     private List<User> users;
-    private Map<Integer, ShareHolder> shareHodlers;
+    private Map<Integer, ShareHolder> shareHolders;
     private List<Share> shares;
     private SFSServerListener listener;
     private ServerListener serverListener;
@@ -36,13 +38,13 @@ public class SFSServer implements ServerAction {
     public SFSServer(SFSServerListener listener, int port) throws IOException {
         this.listener = listener;
         users = new ArrayList<User>();
-        shareHodlers = new Hashtable<Integer, ShareHolder>();
+        shareHolders = new Hashtable<Integer, ShareHolder>();
         shares = new ArrayList<Share>();
         serverListener = new ServerListener(this, port);
     }
 
-    public Map<Integer, ShareHolder> getShareHodlers() {
-        return shareHodlers;
+    public Map<Integer, ShareHolder> getShareHolders() {
+        return shareHolders;
     }
 
     public List<Share> getShares() {
@@ -75,6 +77,18 @@ public class SFSServer implements ServerAction {
         }
         if (user != null) {
             System.out.println("User found, removing user...");
+            ShareHolder[] shs = shareHolders.values().toArray(new ShareHolder[0]);
+            Integer[] is = shareHolders.keySet().toArray(new Integer[0]);
+            for (int i = 0; i < shs.length; i++) {
+                if (shs[i].getUsers().size() == 1 && shs[i].getUsers().get(0).equals(user)) {
+                    shareHolders.remove(is[i]);
+                    System.out.println("Remove share! " + shs[i].getShare());
+                    for (User u : users) {
+                        u.getServer().sendObject(new SendRemoveShareEvent(shs[i].getShare()));
+                    }
+                }
+            }
+
             listener.onClientDisconnect(user);
         }
     }

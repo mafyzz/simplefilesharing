@@ -34,7 +34,7 @@ public class GetShareOwnersEvent extends Event {
     }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
-        List<User> users = server.getShareHodlers().get(share.getHash()).getUsers();
+        List<User> users = server.getShareHolders().get(share.getHash()).getUsers();
         String[] IPs = new String[users.size()];
         int[] ports = new int[users.size()];
         for (int i = 0; i < IPs.length; i++) {

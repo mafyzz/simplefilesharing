@@ -48,6 +48,10 @@ public class SFSClientTest {
             public void addShare(Share share) {
                 System.out.println("Add Share!");
             }
+
+            public void removeShare(Share share) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
         }, "localhost", 31338, listenPort);
         // File file = new File("/users/eirikb/Desktop/Heroes.S03E06.HDTV.XviD-LOL.avi");
         File file = new File("/export/home/eirikb/test");
@@ -59,6 +63,10 @@ public class SFSClientTest {
 
             public void addShare(Share share) {
                 System.out.println("ADD SHARE");
+            }
+
+            public void removeShare(Share share) {
+                throw new UnsupportedOperationException("Not supported yet.");
             }
         }, "localhost", 31338, listenPort + 1);
 

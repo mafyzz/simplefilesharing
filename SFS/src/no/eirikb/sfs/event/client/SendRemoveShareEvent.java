@@ -6,18 +6,15 @@
  * this stuff is worth it, you can buy me a beer in return Eirik Brandtzæg
  * =============================================================================
  */
-package no.eirikb.sfs.event.server;
+package no.eirikb.sfs.event.client;
 
 import no.eirikb.sfs.client.Client;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
-import no.eirikb.sfs.event.client.SendAddShareEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
-import no.eirikb.sfs.sfsserver.ShareHolder;
-import no.eirikb.sfs.sfsserver.User;
 import no.eirikb.sfs.share.Share;
 
 /**
@@ -25,32 +22,27 @@ import no.eirikb.sfs.share.Share;
  * @author eirikb
  * @author <a href="mailto:eirikb@google.com">eirikb@google.com</a>
  */
-public class CreateShareEvent extends Event {
+public class SendRemoveShareEvent extends Event {
 
     private Share share;
 
-    public CreateShareEvent(Share share) {
+    public SendRemoveShareEvent(Share share) {
         this.share = share;
     }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
-        server.getShares().add(share);
-        ShareHolder shareHolder = new ShareHolder(share);
-        server.getShareHolders().put(share.getHash(), shareHolder);
-        for (User u : server.getUsers().toArray(new User[0])) {
-            if (u.getServer().equals(client)) {
-                shareHolder.getUsers().add(u);
-                break;
-            }
-        }
-        for (User u : server.getUsers().toArray(new User[0])) {
-            u.getServer().sendObject(new SendAddShareEvent(share));
-        }
-        listener.createShareEvent(share);
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void execute(SFSClientListener listener, SFSClient client) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Share[] shares = client.getShares().toArray(new Share[0]);
+        for (int i = 0; i < shares.length; i++) {
+            if (shares[i].equals(share)) {
+                client.getShares().remove(share);
+                listener.removeShare(share);
+                break;
+            }
+        }
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
