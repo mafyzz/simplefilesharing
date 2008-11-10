@@ -18,6 +18,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -50,7 +51,7 @@ public class ShareFileWriterTest {
     @Test
     public void testWrite() {
         System.out.println("write");
-        File file = new File("/export/home/eirikb/test");
+        File file = new File("/usr/local/google/home/eirikb/test");
         String initHash = fileToMD5(file);
         Share readShare = ShareUtility.createShare(file);
         long split = readShare.getShare().getSize() / 2;
@@ -84,8 +85,7 @@ public class ShareFileWriterTest {
         String resultHash = fileToMD5(resultFile);
         System.out.println(initHash);
         System.out.println(resultHash);
-    //assertEquals(initHash, resultHash);
-
+        assertEquals(initHash, resultHash);
     }
 
     private String fileToMD5(File file) {
