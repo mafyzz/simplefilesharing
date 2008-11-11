@@ -113,10 +113,10 @@ public class ServerTest {
         System.out.println("");
 
         System.out.println("Client 1 : Close connection");
-        client1.getClient().setRun(false);
-        client1.getClient().getSocket().close();
+        client1.close();
 
         Thread.sleep(1000);
+        System.out.println("");
 
         assertEquals(client2.getShares().size(), 0);
         assertEquals(client3.getShares().size(), 0);
@@ -144,7 +144,7 @@ public class ServerTest {
 
         Thread.sleep(1000);
         System.out.println("");
-
+        
         assertEquals(client1.getShares().size(), 1);
         assertEquals(client2.getShares().size(), 1);
         assertEquals(client3.getShares().size(), 1);
@@ -153,9 +153,9 @@ public class ServerTest {
         
         Thread.sleep(1000);
         System.out.println("");
-        
-        assertEquals(client1.getShares().size(), 1);
-        assertEquals(client2.getShares().size(), 1);
-        assertEquals(client3.getShares().size(), 1);
+
+        assertEquals(client1.getShares().size(), 2);
+        assertEquals(client2.getShares().size(), 2);
+        assertEquals(client3.getShares().size(), 2);
     }
 }
