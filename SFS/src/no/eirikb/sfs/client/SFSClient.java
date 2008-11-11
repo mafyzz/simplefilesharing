@@ -84,7 +84,7 @@ public class SFSClient implements ClientAction, ServerAction {
         return client;
     }
 
-    public List<Share> getShares() {
+    public synchronized List<Share> getShares() {
         return shares;
     }
 
