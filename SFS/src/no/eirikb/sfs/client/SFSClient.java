@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import no.eirikb.sfs.event.Event;
 import no.eirikb.sfs.event.server.CreateShareEvent;
 import no.eirikb.sfs.event.server.GetSharesEvent;
@@ -57,6 +59,16 @@ public class SFSClient implements ClientAction, ServerAction {
         Share share = ShareUtility.createShare(file);
         localShares.put(share.getHash(), new LocalShare(file, share));
         client.sendObject(new CreateShareEvent(share));
+    }
+
+    public void close() {
+        serverListener.close();
+        client.setRun(false);
+        try {
+            client.getSocket().close();
+        } catch (IOException ex) {
+            Logger.getLogger(SFSClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void setShares(List<Share> shares) {

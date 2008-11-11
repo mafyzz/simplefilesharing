@@ -82,6 +82,7 @@ public class SFSServer implements ServerAction {
             for (int i = 0; i < shs.length; i++) {
                 if (shs[i].getUsers().size() == 1 && shs[i].getUsers().get(0).equals(user)) {
                     shareHolders.remove(is[i]);
+                    shares.remove(shs[i].getShare());
                     System.out.println("Remove share! " + shs[i].getShare());
                     for (User u : users) {
                         u.getServer().sendObject(new SendRemoveShareEvent(shs[i].getShare()));
