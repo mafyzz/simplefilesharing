@@ -57,7 +57,6 @@ public class ShareFileWriter extends ShareFileHandler {
         try {
             new File(getPath() + currentFile.getPath()).mkdirs();
             currentStream = new RandomAccessFile(getPath() + currentFile.getPath() + currentFile.getName(), "rw");
-            //       currentStream.setLength(currentFile.getSize());
             currentStream.seek((int) currentFile.getStart());
             written = (int) currentFile.getStart();
             return true;

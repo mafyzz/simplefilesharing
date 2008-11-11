@@ -63,13 +63,10 @@ public abstract class ShareFileHandler {
     }
 
     public String getPath() {
-        return path.getAbsolutePath();
-    /*
-    if (path.isDirectory()) {
-    return path.getAbsolutePath();
-    } else {
-    return path.getPath().substring(0, path.getPath().length() - path.getName().length());
-    }
-     */
+        if (path.isFile()) {
+            return path.getPath().substring(0, path.getPath().length() - path.getName().length());
+        } else {
+            return path.getAbsolutePath();
+        }
     }
 }
