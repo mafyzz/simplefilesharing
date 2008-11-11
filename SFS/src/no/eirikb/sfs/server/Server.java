@@ -8,6 +8,7 @@
  */
 package no.eirikb.sfs.server;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -72,16 +73,24 @@ public class Server extends Thread {
                 Event event = (Event) objectIn.readObject();
                 action.onServerEvent(this, event);
             }
+        }catch (EOFException e) {
+            
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            if (run) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            if (run) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } finally {
             try {
                 action.onClientDisconnect(this);
                 socket.close();
             } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                if (run) {
+                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }

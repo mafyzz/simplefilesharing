@@ -57,7 +57,7 @@ public class SendShareOwnersEvent extends Event {
             client.getLocalShares().put(ls2.getShare().getHash(), ls);
         }
 
-        client.getShares().add(share);
+      //   client.getShares().add(share);
 
 
         int size = (int) (share.getShare().getSize() / IPs.length);

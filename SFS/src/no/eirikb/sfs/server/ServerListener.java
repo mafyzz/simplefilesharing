@@ -22,15 +22,18 @@ public class ServerListener extends Thread {
 
     private ServerSocket listener;
     private ServerAction action;
+    private boolean run;
 
     public ServerListener(ServerAction action, int port) throws IOException {
         this.action = action;
         listener = new ServerSocket(port);
+        run = true;
         start();
     }
 
     public void close() {
         try {
+            run = false;
             listener.close();
         } catch (IOException ex) {
             Logger.getLogger(ServerListener.class.getName()).log(Level.SEVERE, null, ex);
@@ -40,12 +43,14 @@ public class ServerListener extends Thread {
     @Override
     public void run() {
         try {
-            while (true) {
+            while (run) {
                 Server server = new Server(listener.accept(), action);
                 action.onClientConnect(server);
             }
         } catch (IOException ex) {
-            Logger.getLogger(ServerListener.class.getName()).log(Level.SEVERE, null, ex);
+            if (run) {
+                Logger.getLogger(ServerListener.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } finally {
             try {
                 System.out.println("Listener close...");
@@ -53,7 +58,9 @@ public class ServerListener extends Thread {
                     listener.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(ServerListener.class.getName()).log(Level.SEVERE, null, ex);
+                if (run) {
+                    Logger.getLogger(ServerListener.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }

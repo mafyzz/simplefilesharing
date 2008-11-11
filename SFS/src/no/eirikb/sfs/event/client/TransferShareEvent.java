@@ -18,6 +18,7 @@ import no.eirikb.sfs.client.LocalShare;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
+import no.eirikb.sfs.event.server.DownloadCompleteEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
@@ -70,6 +71,7 @@ public class TransferShareEvent extends Event {
             ls.incShares();
             if (ls.getShares() == ls.getTotalShares()) {
                 System.out.println("DONE!!!");
+                sfsClient.getClient().sendObject(new DownloadCompleteEvent(hash));
             }
         } catch (IOException ex) {
             Logger.getLogger(TransferShareEvent.class.getName()).log(Level.SEVERE, null, ex);

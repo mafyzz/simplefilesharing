@@ -55,9 +55,14 @@ public class SFSClient implements ClientAction, ServerAction {
         serverListener = new ServerListener(this, listenPort);
     }
 
-    public void createShare(File file) {
-        Share share = ShareUtility.createShare(file);
-        localShares.put(share.getHash(), new LocalShare(file, share));
+    public void createShare(File file, String name) {
+        File[] files = {file};
+        createShare(files, name);
+    }
+
+    public void createShare(File[] files, String name) {
+        Share share = ShareUtility.createShare(files, name);
+        localShares.put(share.getHash(), new LocalShare(files[0], share));
         client.sendObject(new CreateShareEvent(share));
     }
 

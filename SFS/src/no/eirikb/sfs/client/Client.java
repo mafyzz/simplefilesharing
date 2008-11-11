@@ -65,14 +65,20 @@ public class Client extends Thread {
                 action.onClientEvent(event);
             }
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            if (run) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            if (run) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } finally {
             try {
                 socket.close();
             } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                if (run) {
+                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }
