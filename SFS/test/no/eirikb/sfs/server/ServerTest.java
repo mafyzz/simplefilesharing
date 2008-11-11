@@ -3,6 +3,8 @@ package no.eirikb.sfs.server;
 import java.io.File;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
+import no.eirikb.sfs.event.server.GetShareOwnersEvent;
+import no.eirikb.sfs.event.server.RequestShareEvent;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
 import no.eirikb.sfs.sfsserver.User;
@@ -19,6 +21,8 @@ import static org.junit.Assert.*;
  * @author eirikb
  */
 public class ServerTest {
+
+    private final String sharePath = "/usr/local/google/home/eirikb/test";
 
     public ServerTest() {
     }
@@ -75,7 +79,7 @@ public class ServerTest {
         System.out.println("");
 
         System.out.println("Client 1: Create a share");
-        client1.createShare(new File("/export/home/eirikb/test"));
+        client1.createShare(new File(sharePath), "TestShare");
 
         Thread.sleep(1000);
         System.out.println("");
@@ -94,7 +98,7 @@ public class ServerTest {
 
         Thread.sleep(1000);
         System.out.println("");
-        assertEquals(client1.getShares().size(), 1);
+        assertEquals(1, client1.getShares().size());
         assertEquals(client1.getShares().size(), client2.getShares().size());
 
         System.out.println("Client 3: Create clinet 3");
@@ -118,17 +122,17 @@ public class ServerTest {
         Thread.sleep(1000);
         System.out.println("");
 
-        assertEquals(client2.getShares().size(), 0);
-        assertEquals(client3.getShares().size(), 0);
+        assertEquals(0, client2.getShares().size());
+        assertEquals(0, client3.getShares().size());
 
         System.out.println("Client 2: Create share");
-        client2.createShare(new File("/export/home/eirikb/test"));
+        client2.createShare(new File(sharePath), "TestShare");
 
         Thread.sleep(1000);
         System.out.println("");
 
-        assertEquals(client2.getShares().size(), 1);
-        assertEquals(client3.getShares().size(), 1);
+        assertEquals(1, client2.getShares().size());
+        assertEquals(1, client3.getShares().size());
 
         System.out.println("Client 1: Create client, again");
         client1 = new SFSClient(new SFSClientListener() {
@@ -140,22 +144,63 @@ public class ServerTest {
             public void removeShare(Share share) {
                 System.out.println("Client 1: Remove share");
             }
-        }, "localhost", 31338, listenPort + 9);
+        }, "localhost", 31338, listenPort);
 
         Thread.sleep(1000);
         System.out.println("");
-        
-        assertEquals(client1.getShares().size(), 1);
-        assertEquals(client2.getShares().size(), 1);
-        assertEquals(client3.getShares().size(), 1);
 
-        client3.createShare(new File("/export/home/eirikb/test"));
-        
+        assertEquals(1, client1.getShares().size());
+        assertEquals(1, client2.getShares().size());
+        assertEquals(1, client3.getShares().size());
+
+        System.out.println("Client 3: Create share");
+        client3.createShare(new File(sharePath), "TestShare");
+
+        Thread.sleep(2000);
+        System.out.println("");
+
+        assertEquals(2, client1.getShares().size());
+        assertEquals(2, client2.getShares().size());
+        assertEquals(2, client3.getShares().size());
+
+        System.out.println("Client 2: Download share 0 (" + client2.getShares().get(0) + ")");
+        client2.getClient().sendObject(new GetShareOwnersEvent(client2.getShares().get(0)));
+
+        Thread.sleep(2000);
+        System.out.println("");
+
+        System.out.println("Client 2: Disconnect");
+        client2.close();
+
         Thread.sleep(1000);
         System.out.println("");
 
-        assertEquals(client1.getShares().size(), 2);
-        assertEquals(client2.getShares().size(), 2);
-        assertEquals(client3.getShares().size(), 2);
+        assertEquals(2, client1.getShares().size());
+        assertEquals(2, client3.getShares().size());
+
+        System.out.println("Client 2 : Create client 2, again");
+        client2 = new SFSClient(new SFSClientListener() {
+
+            public void addShare(Share share) {
+                System.out.println("Client 2: Add share");
+            }
+
+            public void removeShare(Share share) {
+                System.out.println("Client 2: Remove share");
+            }
+        }, "localhost", 31338, listenPort + 1);
+
+        Thread.sleep(1000);
+        System.out.println("");
+
+        System.out.println("Client 2: Download share 0 (" + client2.getShares().get(0) + ")");
+        client2.getClient().sendObject(new GetShareOwnersEvent(client2.getShares().get(0)));
+
+        Thread.sleep(1000);
+        System.out.println("");
+
+        assertEquals(2, client1.getShares().size());
+        assertEquals(2, client2.getShares().size());
+        assertEquals(2, client3.getShares().size());
     }
 }
