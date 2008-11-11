@@ -47,17 +47,17 @@ public class ShareFileWriterTest {
     @Test
     public void testWrite() {
         System.out.println("write");
-        File file = new File("/usr/local/google/home/eirikb/test");
-        String initHash = fileToMD5(file);
-        Share readShare = ShareUtility.createShare(file);
+        File[] files = {new File("/usr/local/google/home/eirikb/test")};
+        String initHash = fileToMD5(files[0]);
+        Share readShare = ShareUtility.createShare(files[0]);
         long split = readShare.getShare().getSize() / 2;
 
-        ShareFileReader r1 = new ShareFileReader(ShareUtility.cropShare(readShare, 0, split), file);
-        ShareFileReader r2 = new ShareFileReader(ShareUtility.cropShare(readShare, split, split * 2), file);
+        ShareFileReader r1 = new ShareFileReader(ShareUtility.cropShare(readShare, 0, split), files[0]);
+        ShareFileReader r2 = new ShareFileReader(ShareUtility.cropShare(readShare, split, split * 2), files[0]);
 
-        Share writeShare = ShareUtility.createShare(file);
+        Share writeShare = ShareUtility.createShare(files, "Test2");
 
-        File writeFile = new File("downloads/" + readShare.getName());
+        File writeFile = new File("downloads/" + writeShare.getName());
 
         ShareFileWriter w1 = new ShareFileWriter(ShareUtility.cropShare(writeShare, 0, split), writeFile);
         ShareFileWriter w2 = new ShareFileWriter(ShareUtility.cropShare(writeShare, split, split * 2), writeFile);
