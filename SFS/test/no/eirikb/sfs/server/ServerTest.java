@@ -4,7 +4,6 @@ import java.io.File;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.server.GetShareOwnersEvent;
-import no.eirikb.sfs.event.server.RequestShareEvent;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
 import no.eirikb.sfs.sfsserver.User;
@@ -59,7 +58,7 @@ public class ServerTest {
             public void onClientDisconnect(User user) {
                 System.out.println("Server: Client disconnect");
             }
-        }, 31338);
+        }, 41338);
 
         System.out.println("Client 1: Create client 1");
         int listenPort = (int) (Math.random() * (65536 - 1024) + 1024);
@@ -73,7 +72,7 @@ public class ServerTest {
             public void removeShare(Share share) {
                 System.out.println("Client 1: Remove share");
             }
-        }, "localhost", 31338, listenPort);
+        }, 41338, listenPort);
 
         Thread.sleep(1000);
         System.out.println("");
@@ -94,7 +93,7 @@ public class ServerTest {
             public void removeShare(Share share) {
                 System.out.println("Client 2: Remove share");
             }
-        }, "localhost", 31338, listenPort + 1);
+        }, 41338, listenPort + 1);
 
         Thread.sleep(1000);
         System.out.println("");
@@ -111,7 +110,7 @@ public class ServerTest {
             public void removeShare(Share share) {
                 System.out.println("Client 3: Remove share");
             }
-        }, "localhost", 31338, listenPort + 2);
+        }, 41338, listenPort + 2);
 
         Thread.sleep(1000);
         System.out.println("");
@@ -144,7 +143,7 @@ public class ServerTest {
             public void removeShare(Share share) {
                 System.out.println("Client 1: Remove share");
             }
-        }, "localhost", 31338, listenPort);
+        }, 41338, listenPort);
 
         Thread.sleep(1000);
         System.out.println("");
@@ -188,7 +187,7 @@ public class ServerTest {
             public void removeShare(Share share) {
                 System.out.println("Client 2: Remove share");
             }
-        }, "localhost", 31338, listenPort + 1);
+        }, 41338, listenPort + 1);
 
         Thread.sleep(1000);
         System.out.println("");

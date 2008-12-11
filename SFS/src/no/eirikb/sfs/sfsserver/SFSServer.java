@@ -21,6 +21,7 @@ import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.server.ServerAction;
 import no.eirikb.sfs.server.ServerListener;
 import no.eirikb.sfs.share.Share;
+import no.eirikb.utils.multicast.MultiCast;
 
 /**
  *
@@ -41,6 +42,7 @@ public class SFSServer implements ServerAction {
         shareHolders = new Hashtable<Integer, ShareHolder>();
         shares = new ArrayList<Share>();
         serverListener = new ServerListener(this, port);
+        new MultiCast().start();
     }
 
     public Map<Integer, ShareHolder> getShareHolders() {

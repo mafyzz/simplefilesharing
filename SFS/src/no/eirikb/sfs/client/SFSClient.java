@@ -26,6 +26,7 @@ import no.eirikb.sfs.server.ServerListener;
 import no.eirikb.sfs.sfsserver.User;
 import no.eirikb.sfs.share.Share;
 import no.eirikb.sfs.share.ShareUtility;
+import no.eirikb.utils.multicast.MultiCast;
 
 /**
  *
@@ -42,8 +43,11 @@ public class SFSClient implements ClientAction, ServerAction {
     private String shareFolder;
     private ServerListener serverListener;
 
-    public SFSClient(SFSClientListener listener, String host, int port, int listenPort) throws IOException {
+    public SFSClient(SFSClientListener listener, int port, int listenPort) throws IOException {
         this.listener = listener;
+
+        String host = new MultiCast().getIP();
+
         client = new Client(this);
         users = new ArrayList<User>();
         shares = new ArrayList<Share>();
