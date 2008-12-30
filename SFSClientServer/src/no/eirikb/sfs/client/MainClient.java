@@ -38,13 +38,11 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
 
             public void run() {
                 loginTextArea.append("Welcome to SFS (Simple File Sharing)!");
-                loginTextArea.append("\nSearching for server...");
-                String server = findServer();
-                loginTextArea.append("\nServer found: " + server);
                 loginTextArea.append("\nConnecting and setting up local server...");
                 try {
                     int listenPort = (int) (Math.random() * (65500 - 1024) + 1024);
-                    client = new SFSClient(mainClient, server, 31338, listenPort);
+                    loginTextArea.append("\nListening on port " + listenPort);
+                    client = new SFSClient(mainClient, listenPort);
                     loginTextArea.append("\nDone");
                     show("main");
                 } catch (IOException ex) {
@@ -53,10 +51,6 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
                 }
             }
         }.start();
-    }
-
-    private String findServer() {
-        return "localhost";
     }
 
     public void addShare(Share share) {
@@ -261,10 +255,11 @@ private void downloadShareMenuItemActionPerformed(java.awt.event.ActionEvent evt
 }//GEN-LAST:event_downloadShareMenuItemActionPerformed
 
     /**
-    * @param args the command line arguments
-    */
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+
             public void run() {
                 new MainClient().setVisible(true);
             }
@@ -298,4 +293,7 @@ private void downloadShareMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JSplitPane verticalSplitPane;
     // End of variables declaration//GEN-END:variables
 
+    public void removeShare(Share share) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
