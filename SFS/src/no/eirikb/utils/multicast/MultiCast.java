@@ -24,12 +24,22 @@ import java.util.logging.Logger;
 public class MultiCast extends Thread {
 
     private final static String HOST = "228.5.6.7";
-    private final static int IPLENGTH = 15; // 255.255.255.255
+    private final static int IPLENGTH = 21; // 255.255.255.255 65555
     private final static int PORT = 6789;
     private MulticastSocket socket;
     private InetAddress group;
+    private String response;
 
     public MultiCast() {
+        init();
+    }
+
+    public MultiCast(String response) {
+        this.response = response;
+        init();
+    }
+
+    public void init() {
         try {
             group = InetAddress.getByName(HOST);
             socket = new MulticastSocket(PORT);
@@ -71,19 +81,16 @@ public class MultiCast extends Thread {
     @Override
     public void run() {
         while (true) {
-            try {
-                read();
-                send(java.net.InetAddress.getLocalHost().getHostAddress());
-                read();
-            } catch (UnknownHostException ex) {
-                Logger.getLogger(MultiCast.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            read();
+            send(response);
+            read();
         }
     }
 
-    public String getIP() {
-        send("Hello");
-        read();
-        return read();
+    public static String getIP() {
+        MultiCast m = new MultiCast();
+        m.send("Hello");
+        m.read();
+        return m.read();
     }
 }

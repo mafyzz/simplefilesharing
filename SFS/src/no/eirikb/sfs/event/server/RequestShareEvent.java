@@ -34,10 +34,12 @@ public class RequestShareEvent extends Event {
 
     private Integer hash;
     private ShareFolder part;
+    private long startByte;
 
-    public RequestShareEvent(Integer hash, ShareFolder part) {
+    public RequestShareEvent(Integer hash, ShareFolder part, long startByte) {
         this.hash = hash;
         this.part = part;
+        this.startByte = startByte;
     }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
@@ -53,20 +55,13 @@ public class RequestShareEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
-        server.sendObject(new TransferShareEvent(hash, part));
+        server.sendObject(new TransferShareEvent(hash, part, startByte));
         server.setRun(false);
         try {
-            System.out.println("fuck? " + hash);
-
-            for (Entry<Integer, LocalShare> entry : client.getLocalShares().entrySet()) {
-                System.out.println(entry.getKey() + " - " + entry.getValue().getShare());
-            }
-            
-            File path = client.getLocalShares().get(hash).getFile();
-            System.out.println("!!!  1!!  " + path);
-            ShareFileReader reader = new ShareFileReader(part, path);
+            LocalShare ls = client.getLocalShares().get(hash);
+            ShareFileReader reader = new ShareFileReader(part, ls.getFile());
             long end = part.getSize() - 1;
-            
+
             byte[] buffer = new byte[10000];
             long tot = 0;
             OutputStream out = server.getSocket().getOutputStream();
@@ -74,6 +69,7 @@ public class RequestShareEvent extends Event {
                 reader.read(buffer, 0);
                 out.write(buffer);
                 tot += buffer.length;
+                listener.sendStatus(ls, part, startByte, tot);
             }
             out.flush();
             out.close();

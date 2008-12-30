@@ -59,6 +59,7 @@ public class ShareFolder implements Serializable {
         this.total = total;
     }
 
+    @Override
     public String toString() {
         return name + "  -  Size: " + Share.hSize(size) + " files: " + total;
     }

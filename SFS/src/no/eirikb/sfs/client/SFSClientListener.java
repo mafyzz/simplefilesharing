@@ -9,6 +9,7 @@
 package no.eirikb.sfs.client;
 
 import no.eirikb.sfs.share.Share;
+import no.eirikb.sfs.share.ShareFolder;
 
 /**
  *
@@ -20,4 +21,12 @@ public interface SFSClientListener {
     public void addShare(Share share);
 
     public void removeShare(Share share);
+
+    public void receiveStatus(LocalShare ls, ShareFolder share, long startByte, long bytes);
+
+    public void reveiveDone(LocalShare ls);
+
+    public void sendStatus(LocalShare ls, ShareFolder share, long startByte, long bytes);
+
+    public void sendDone(LocalShare ls);
 }

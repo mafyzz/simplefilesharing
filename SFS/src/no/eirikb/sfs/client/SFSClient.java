@@ -43,16 +43,16 @@ public class SFSClient implements ClientAction, ServerAction {
     private String shareFolder;
     private ServerListener serverListener;
 
-    public SFSClient(SFSClientListener listener, int port, int listenPort) throws IOException {
+    public SFSClient(SFSClientListener listener, int listenPort) throws IOException {
         this.listener = listener;
-
-        String host = new MultiCast().getIP();
-
+        String host = MultiCast.getIP();
+        int port = Integer.parseInt(host.substring(host.indexOf(' ') + 1).trim());
+        host = host.substring(0, host.indexOf(' '));
         client = new Client(this);
         users = new ArrayList<User>();
         shares = new ArrayList<Share>();
         localShares = new Hashtable<Integer, LocalShare>();
-        shareFolder = "downloads/";
+        shareFolder = "Downloads/";
         client.connect(host, port);
         client.sendObject(new SendUserInfoEvent(listenPort));
         client.sendObject(new GetSharesEvent());
