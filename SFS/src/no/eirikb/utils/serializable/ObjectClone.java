@@ -6,7 +6,7 @@
  * this stuff is worth it, you can buy me a beer in return Eirik Brandtzæg
  *  =============================================================================
  */
-package no.eirikb.utils.file;
+package no.eirikb.utils.serializable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  *
  * @author Eirik Brandtzæg <eirikdb@gmail.com>
  */
-public class Clone {
+public class ObjectClone {
 
     public static Object clone(Object o) {
         ObjectOutputStream out = null;
@@ -35,15 +35,15 @@ public class Clone {
             Object no = in.readObject();
             return no;
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Clone.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ObjectClone.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(Clone.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ObjectClone.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 out.close();
                 in.close();
             } catch (IOException ex) {
-                Logger.getLogger(Clone.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ObjectClone.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return null;
