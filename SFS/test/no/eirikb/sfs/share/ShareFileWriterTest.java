@@ -1,14 +1,8 @@
 package no.eirikb.sfs.share;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import no.eirikb.utils.serializable.ObjectClone;
+import no.eirikb.utils.file.MD5File;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -21,6 +15,9 @@ import static org.junit.Assert.*;
  * @author eirikb
  */
 public class ShareFileWriterTest {
+
+    private final String sharePath = "/home/eirikb/test";
+    private final int PARTS = 7;
 
     public ShareFileWriterTest() {
     }
@@ -47,77 +44,52 @@ public class ShareFileWriterTest {
     @Test
     public void testWrite() {
         System.out.println("write");
-        File[] files = {new File("/usr/local/google/home/eirikb/test")};
-        String initHash = fileToMD5(files[0]);
-        Share readShare = ShareUtility.createShare(files[0]);
-        long split = readShare.getShare().getSize() / 2;
+        final File[] files = {new File(sharePath)};
 
-        ShareFileReader r1 = new ShareFileReader(ShareUtility.cropShare(readShare, 0, split), files[0]);
-        ShareFileReader r2 = new ShareFileReader(ShareUtility.cropShare(readShare, split, split * 2), files[0]);
+        System.out.println("Creating hash...");
+        String initHash = MD5File.MD5Directory(files[0]);
+        System.out.println("Hash: " + initHash);
+        Share readShare = ShareUtility.createShare(files, "TestShare");
 
-        Share writeShare = ShareUtility.createShare(files, "Test2");
+        final long split = readShare.getShare().getSize() / PARTS;
 
-        File writeFile = new File("downloads/" + writeShare.getName());
+        System.out.println("Creating shares...");
 
-        ShareFileWriter w1 = new ShareFileWriter(ShareUtility.cropShare(writeShare, 0, split), writeFile);
-        ShareFileWriter w2 = new ShareFileWriter(ShareUtility.cropShare(writeShare, split, split * 2), writeFile);
+        final ShareFolder[] readers = new ShareFolder[PARTS];
 
-
-        long end = readShare.getShare().getSize();
-        long tot = 0;
-        byte[] b = new byte[10000];
-        while (tot < end) {
-            r1.read(b, 0);
-            w1.write(b, b.length);
-            tot += b.length;
-
-            r2.read(b, 0);
-            w2.write(b, b.length);
-            tot += b.length;
+        for (int i = 0; i < PARTS; i++) {
+            readers[i] = ShareUtility.cropShare(readShare, i * split, (i + 1) * split);
         }
 
+        System.out.println("Reading and writing shares...");
 
-        File resultFile = new File("downloads/" + readShare.getName());
-        String resultHash = fileToMD5(resultFile);
-        System.out.println(initHash);
-        System.out.println(resultHash);
+        for (int i = 0; i < PARTS; i++) {
+            final int j = i;
+            //       new Thread() {
+            //     public void run() {
+            ShareFolder part = (ShareFolder) ObjectClone.clone(readers[j]);
+            ShareFileReader reader = new ShareFileReader(readers[j], files[0]);
+            ShareFileWriter writer = new ShareFileWriter(part,
+                    new File("Downloads/" + readers[j].getName()));
+            long tot = 0;
+            byte[] b = new byte[10000];
+            while (tot < split) {
+                reader.read(b, 0);
+                writer.write(b, b.length);
+                tot += b.length;
+            }
+            System.out.println(tot + " " + split);
+            System.out.println((int) ((j + 1) * 100.0 / PARTS) + "% Complete");
+        }
+        //  }.start();
+        // }
+
+
+        File resultFile = new File("Downloads/" + readShare.getName());
+        System.out.println("Creating hash of written share...");
+        String resultHash = MD5File.MD5Directory(resultFile);
+        System.out.println("Init hash:   " + initHash);
+        System.out.println("Result hash: " + resultHash);
         assertEquals(initHash, resultHash);
-    }
-
-    private String fileToMD5(File file) {
-        if (file.isDirectory()) {
-            String hash = "";
-            for (File f : file.listFiles()) {
-                hash += fileToMD5(f);
-            }
-            return hash;
-        } else {
-            InputStream is = null;
-            try {
-                MessageDigest digest = MessageDigest.getInstance("MD5");
-                is = new FileInputStream(file);
-                byte[] buffer = new byte[8192];
-                int read = 0;
-                while ((read = is.read(buffer)) > 0) {
-                    digest.update(buffer, 0, read);
-                }
-                byte[] md5sum = digest.digest();
-                BigInteger bigInt = new BigInteger(1, md5sum);
-                return bigInt.toString(16);
-            } catch (IOException ex) {
-                Logger.getLogger(ShareFileWriterTest.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (NoSuchAlgorithmException ex) {
-                Logger.getLogger(ShareFileWriterTest.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException ex) {
-                        Logger.getLogger(ShareFileWriterTest.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        }
-        return null;
     }
 }
