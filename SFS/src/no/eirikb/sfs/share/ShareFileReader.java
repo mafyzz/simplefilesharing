@@ -8,9 +8,7 @@
  */
 package no.eirikb.sfs.share;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.logging.Level;

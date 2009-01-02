@@ -67,7 +67,7 @@ public class TransferShareEvent extends Event {
             while ((b = in.read(buf)) >= 0) {
                 writer.write(buf, b);
                 tot += b;
-                listener.receiveStatus(ls, part, startBye, tot);
+                listener.receiveStatus(ls, part, startBye, b);
             }
             ls.incShares();
             if (ls.getShares() == ls.getTotalShares()) {
