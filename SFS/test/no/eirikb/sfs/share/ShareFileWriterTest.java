@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class ShareFileWriterTest {
 
     private final String sharePath = "/home/eirikb/test";
-    private final int PARTS = 7;
+    private final int PARTS = 88;
     private int done;
 
     public ShareFileWriterTest() {
@@ -50,9 +50,8 @@ public class ShareFileWriterTest {
         System.out.println("Creating hash...");
         String initHash = MD5File.MD5Directory(files[0]);
         System.out.println("Hash: " + initHash);
-        Share readShare = ShareUtility.createShare(files, "TestShare");
 
-        final long split = readShare.getShare().getSize() / PARTS;
+        Share readShare = ShareUtility.createShare(files, "TestShare");
 
         System.out.println("Creating shares...");
 
