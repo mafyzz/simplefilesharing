@@ -34,12 +34,12 @@ public class TransferShareEvent extends Event {
 
     private Integer hash;
     private ShareFolder part;
-    private long startBye;
+    private int partNumber;
 
-    public TransferShareEvent(Integer hash, ShareFolder part, long startBye) {
+    public TransferShareEvent(Integer hash, ShareFolder part, int partNumber) {
         this.hash = hash;
         this.part = part;
-        this.startBye = startBye;
+        this.partNumber = partNumber;
     }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
@@ -67,7 +67,7 @@ public class TransferShareEvent extends Event {
             while ((b = in.read(buf)) >= 0) {
                 writer.write(buf, b);
                 tot += b;
-                listener.receiveStatus(ls, part, startBye, b);
+                listener.receiveStatus(ls, part, partNumber, b);
             }
             ls.incShares();
             if (ls.getShares() == ls.getTotalShares()) {

@@ -34,12 +34,12 @@ public class RequestShareEvent extends Event {
 
     private Integer hash;
     private ShareFolder part;
-    private long startByte;
+    private int partNumber;
 
-    public RequestShareEvent(Integer hash, ShareFolder part, long startByte) {
+    public RequestShareEvent(Integer hash, ShareFolder part, int partNumber) {
         this.hash = hash;
         this.part = part;
-        this.startByte = startByte;
+        this.partNumber = partNumber;
     }
 
     public void execute(SFSServerListener listener, Server client, SFSServer server) {
@@ -55,7 +55,7 @@ public class RequestShareEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
-        server.sendObject(new TransferShareEvent(hash, part, startByte));
+        server.sendObject(new TransferShareEvent(hash, part, partNumber));
         server.setRun(false);
         try {
             LocalShare ls = client.getLocalShares().get(hash);
@@ -69,7 +69,7 @@ public class RequestShareEvent extends Event {
                 reader.read(buffer, 0);
                 out.write(buffer);
                 tot += buffer.length;
-                listener.sendStatus(ls, part, startByte, tot);
+                listener.sendStatus(ls, part, partNumber, tot);
             }
             out.flush();
             out.close();

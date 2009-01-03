@@ -84,6 +84,20 @@ public class ShareUtility {
         return newShare;
     }
 
+    public static ShareFolder[] cropShareToParts(Share share, int parts) {
+        ShareFolder[] shares = new ShareFolder[parts];
+        long size = (share.getShare().getSize() / parts);
+        for (int i = 0; i < parts - 1; i++) {
+            shares[i] = ShareUtility.cropShare(share, i * size, (i + 1) * size);
+            shares[i].setSize(size);
+        }
+        int i = parts - 1;
+        long restSize = size + share.getShare().getSize() - (parts * size);
+        shares[i] = ShareUtility.cropShare(share, i * size, restSize);
+        shares[i].setSize(restSize);
+        return shares;
+    }
+
     private static void cropShareFolder(ShareFolder share, ShareFolder newShare,
             long start, long stop) {
         if (tot >= 0) {

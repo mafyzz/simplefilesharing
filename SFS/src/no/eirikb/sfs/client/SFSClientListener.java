@@ -22,11 +22,11 @@ public interface SFSClientListener {
 
     public void removeShare(Share share);
 
-    public void receiveStatus(LocalShare ls, ShareFolder share, long startByte, long bytes);
+    public void receiveStatus(LocalShare ls, ShareFolder share, int partNumber, long bytes);
 
     public void reveiveDone(LocalShare ls);
 
-    public void sendStatus(LocalShare ls, ShareFolder share, long startByte, long bytes);
+    public void sendStatus(LocalShare ls, ShareFolder share, int partNumber, long bytes);
 
     public void sendDone(LocalShare ls);
 }
