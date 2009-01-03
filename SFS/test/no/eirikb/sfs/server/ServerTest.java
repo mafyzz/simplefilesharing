@@ -11,6 +11,7 @@ import no.eirikb.sfs.sfsserver.SFSServerListener;
 import no.eirikb.sfs.sfsserver.User;
 import no.eirikb.sfs.share.Share;
 import no.eirikb.sfs.share.ShareFolder;
+import no.eirikb.utils.file.MD5File;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,6 +27,7 @@ public class ServerTest {
 
     private final String sharePath = "/home/eirikb/test";
     private boolean done;
+    private static String initHash;
 
     public ServerTest() {
     }
@@ -67,6 +69,7 @@ public class ServerTest {
         return new SFSClient(new SFSClientListener() {
 
             private int percent;
+            private long tot = 0;
 
             public void addShare(Share share) {
                 System.out.println(name + ": Add share");
@@ -76,15 +79,16 @@ public class ServerTest {
                 System.out.println(name + ": Remove share");
             }
 
-            public void receiveStatus(LocalShare ls, ShareFolder share, long startByte, long bytes) {
-                int percent2 = (int) ((bytes * 100) / ls.getShare().getShare().getSize());
+            public void receiveStatus(LocalShare ls, ShareFolder share, int partNumber, long bytes) {
+                tot += bytes;
+                int percent2 = (int) ((tot * 100) / ls.getShare().getShare().getSize());
                 if (percent2 != percent) {
                     percent = percent2;
-                    System.out.println(percent);
+                    System.out.println(percent + "%");
                 }
             }
 
-            public void sendStatus(LocalShare ls, ShareFolder share, long startByte, long bytes) {
+            public void sendStatus(LocalShare ls, ShareFolder share, int partNumber, long bytes) {
                 //   System.out.println("Send! " + startByte + ' ' + bytes);
             }
 
@@ -99,146 +103,64 @@ public class ServerTest {
         }, listenPort);
     }
 
-    //@Test
-    public void simpleTest() throws Exception {
-        System.out.println("Server: Create");
-        createServer(40000);
-        System.out.println("Client 1: Create");
-        SFSClient c1 = createClient("Client 1", 40001);
-        Thread.sleep(1000);
-        System.out.println("Client 1: Create share");
-        c1.createShare(new File(sharePath), "Test");
-        Thread.sleep(1000);
-        System.out.println("Client 2: Create");
-        SFSClient c2 = createClient("Client ", 40002);
-        Thread.sleep(1000);
-        System.out.println("Client 2: Download share 0 (" + c2.getShares().get(0) + ")");
-        c2.getClient().sendObject(new GetShareOwnersEvent(c2.getShares().get(0)));
-        Thread.sleep(30000);
+    /**
+     * *********************************
+     * TEST!
+     * *********************************
+     */
+    @Test
+    public void initHashTest() {
+        System.out.println("Creating hash...");
+        final File[] files = {new File(sharePath)};
+        initHash = MD5File.MD5Directory(files[0]);
+        System.out.println("Hash: " + initHash);
+        assertNotNull(initHash);
     }
 
     @Test
-    public void testShares() throws Exception {
-        System.out.println("Starting server...");
+    public void simpleTest() throws Exception {
+
+        System.out.println("Server: Create");
         createServer(40000);
 
-        System.out.println("Client 1: Create client 1");
-        int listenPort = (int) (Math.random() * (65536 - 1024) + 1024);
-        System.out.println("Client 1: Listen port: " + listenPort);
-        SFSClient client1 = createClient("Client 1", listenPort);
-
+        System.out.println("Client 1: Create");
+        SFSClient c1 = createClient("Client 1", 40001);
         Thread.sleep(1000);
-        System.out.println("");
 
-        System.out.println("Client 1: Create a share");
-        client1.createShare(new File(sharePath), "TestShare");
-
+        System.out.println("Client 1: Create share");
+        c1.createShare(new File(sharePath), "Test");
         Thread.sleep(1000);
-        System.out.println("");
 
-        System.out.println("Client 2 : Create client 2");
-        SFSClient client2 = createClient("Client 2", listenPort + 1);
-
+        System.out.println("Client 2: Create");
+        SFSClient c2 = createClient("Client ", 40002);
         Thread.sleep(1000);
-        System.out.println("");
 
-        assertEquals(1, client1.getShares().size());
-        assertEquals(client1.getShares().size(), client2.getShares().size());
-        System.out.println("Client 3: Create clinet 3");
-        SFSClient client3 = createClient("Client 3", listenPort + 2);
-
-        Thread.sleep(1000);
-        System.out.println("");
-
-        System.out.println("Client 1 : Close connection");
-        client1.close();
-
-        Thread.sleep(1000);
-        System.out.println("");
-
-        assertEquals(0, client2.getShares().size());
-        assertEquals(0, client3.getShares().size());
-
-        System.out.println("Client 2: Create share");
-        client2.createShare(new File(sharePath), "TestShare");
-
-        Thread.sleep(1000);
-        System.out.println("");
-
-        assertEquals(1, client2.getShares().size());
-        assertEquals(1, client3.getShares().size());
-
-        System.out.println("Client 1: Create client, again");
-        client1 = createClient("Client 1", listenPort);
-
-        Thread.sleep(1000);
-        System.out.println("");
-
-        assertEquals(1, client1.getShares().size());
-        assertEquals(1, client2.getShares().size());
-        assertEquals(1, client3.getShares().size());
-
-        System.out.println("Client 3: Create share");
-        client3.createShare(new File(sharePath), "TestShare");
-
-        Thread.sleep(2000);
-        System.out.println("");
-
-        assertEquals(2, client1.getShares().size());
-        assertEquals(2, client2.getShares().size());
-        assertEquals(2, client3.getShares().size());
-
-        System.out.println("Client 2: Download share 0 (" + client2.getShares().get(0) + ")");
+        System.out.println("Client 2: Download share 0 (" + c2.getShares().get(0) + ")");
         done = false;
-        client2.getClient().sendObject(new GetShareOwnersEvent(client2.getShares().get(0)));
-
+        c2.getClient().sendObject(new GetShareOwnersEvent(c2.getShares().get(0)));
         while (!done) {
             Thread.yield();
         }
 
+        System.out.println("Client 3: Create");
+        SFSClient c3 = createClient("Client 3", 40003);
         Thread.sleep(1000);
-        System.out.println("");
 
-        System.out.println("Client 2: Disconnect");
-        client2.close();
-
-        Thread.sleep(1000);
-        System.out.println("");
-
-        assertEquals(2, client1.getShares().size());
-        assertEquals(2, client3.getShares().size());
-
-        System.out.println("Client 2 : Create client 2, again");
-        client2 = createClient("Client 2", listenPort + 1);
-
-        Thread.sleep(1000);
-        System.out.println("");
-
-        System.out.println("Client 2: Download share 0 (" + client2.getShares().get(0) + ")");
+        System.out.println("Client 3: Download share 0 (" + c3.getShares().get(0) + ")");
         done = false;
-        client2.getClient().sendObject(new GetShareOwnersEvent(client2.getShares().get(0)));
-
+        c3.getClient().sendObject(new GetShareOwnersEvent(c3.getShares().get(0)));
         while (!done) {
             Thread.yield();
         }
+    }
 
-        Thread.sleep(1000);
-        System.out.println("");
-
-        System.out.println("Client 2: Create share");
-        client2.createShare(new File("/home/eirikb/NetBeansProjects/SFS/Downloads/TestShare"), "AnotherShare");
-
-        Thread.sleep(1000);
-        System.out.println("");
-
-        System.out.println("Client 1: Download share 1 (" + client1.getShares().get(1) + ")");
-        client1.getClient().sendObject(new GetShareOwnersEvent(client1.getShares().get(1)));
-
-        Thread.sleep(30000);
-        System.out.println("");
-
-        assertEquals(2, client1.getShares().size());
-        assertEquals(2, client2.getShares().size());
-        assertEquals(2, client3.getShares().size());
+    @Test
+    public void resultHashTest() {
+        System.out.println("Creating hash of written share...");
+        File resultFile = new File("Downloads/Test");
+        String resultHash = MD5File.MD5Directory(resultFile);
+        System.out.println("Init hash:   " + initHash);
+        System.out.println("Result hash: " + resultHash);
+        assertEquals(initHash, resultHash);
     }
 }
