@@ -81,6 +81,7 @@ public class ShareUtility {
         tot = 0;
         cropShareFolder(startShare, newShare, start, stop);
         deleteEmptyFolders(newShare);
+        newShare.setSize(stop - start);
         return newShare;
     }
 
@@ -89,12 +90,9 @@ public class ShareUtility {
         long size = (share.getShare().getSize() / parts);
         for (int i = 0; i < parts - 1; i++) {
             shares[i] = ShareUtility.cropShare(share, i * size, (i + 1) * size);
-            shares[i].setSize(size);
         }
         int i = parts - 1;
-        long restSize = size + share.getShare().getSize() - (parts * size);
-        shares[i] = ShareUtility.cropShare(share, i * size, restSize);
-        shares[i].setSize(restSize);
+        shares[i] = ShareUtility.cropShare(share, i * size, share.getShare().getSize());
         return shares;
     }
 
