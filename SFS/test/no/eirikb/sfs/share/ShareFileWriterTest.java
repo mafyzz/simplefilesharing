@@ -18,6 +18,7 @@ public class ShareFileWriterTest {
 
     private final String sharePath = "/home/eirikb/test";
     private final int PARTS = 7;
+    private int done;
 
     public ShareFileWriterTest() {
     }
@@ -55,41 +56,36 @@ public class ShareFileWriterTest {
 
         System.out.println("Creating shares...");
 
-        final ShareFolder[] readers = new ShareFolder[PARTS];
-
-        for (int i = 0; i < PARTS; i++) {
-            if (i != PARTS - 1) {
-                readers[i] = ShareUtility.cropShare(readShare, i * split, (i + 1) * split);
-            } else {
-                long split2 = readShare.getShare().getSize() - (PARTS * split);
-                split2 += split;
-                readers[i] = ShareUtility.cropShare(readShare, i * split, (i + 1) * split2);
-            }
-        }
+        final ShareFolder[] readers = ShareUtility.cropShareToParts(readShare, PARTS);
 
         System.out.println("Reading and writing shares...");
 
+        done = 0;
         for (int i = 0; i < PARTS; i++) {
             final int j = i;
-            //       new Thread() {
-            //         public void run() {
-            ShareFolder part = (ShareFolder) ObjectClone.clone(readers[j]);
-            ShareFileReader reader = new ShareFileReader(readers[j], files[0]);
-            ShareFileWriter writer = new ShareFileWriter(part,
-                    new File("Downloads/" + readers[j].getName()));
-            long tot = 0;
-            byte[] b = new byte[10000];
-            while (tot < split) {
-                reader.read(b, 0);
-                writer.write(b, b.length);
-                tot += b.length;
-            }
-            System.out.println(tot + " " + split);
-            System.out.println((int) ((j + 1) * 100.0 / PARTS) + "% Complete");
-        }
-        //        }.start();
-        //    }
+            new Thread() {
 
+                public void run() {
+                    ShareFolder part = (ShareFolder) ObjectClone.clone(readers[j]);
+                    ShareFileReader reader = new ShareFileReader(readers[j], files[0]);
+                    ShareFileWriter writer = new ShareFileWriter(part,
+                            new File("Downloads/" + readers[j].getName()));
+                    long tot = 0;
+                    byte[] b = new byte[10000];
+                    while (tot < readers[j].getSize()) {
+                        reader.read(b, 0);
+                        writer.write(b, b.length);
+                        tot += b.length;
+                    }
+                    done++;
+                    System.out.println((int) (done * 100.0 / PARTS) + "% Complete");
+                }
+            }.start();
+        }
+
+        while (done < PARTS) {
+            Thread.yield();
+        }
 
         File resultFile = new File("Downloads/" + readShare.getName());
         System.out.println("Creating hash of written share...");
@@ -97,5 +93,6 @@ public class ShareFileWriterTest {
         System.out.println("Init hash:   " + initHash);
         System.out.println("Result hash: " + resultHash);
         assertEquals(initHash, resultHash);
+
     }
 }
