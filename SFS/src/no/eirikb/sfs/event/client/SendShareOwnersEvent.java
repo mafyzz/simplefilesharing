@@ -50,11 +50,13 @@ public class SendShareOwnersEvent extends Event {
     public void execute(SFSClientListener listener, SFSClient client) {
         LocalShare ls = new LocalShare(new File(client.getShareFolder() + share.getShare().getName()), share);
         ls.setTotalShares(IPs.length);
+
         LocalShare ls2;
         if ((ls2 = client.getLocalShares().put(share.getHash(), ls)) != null) {
             client.getLocalShares().put(ls2.getShare().getHash(), ls);
         }
         ShareFolder[] parts = ShareUtility.cropShareToParts(share, IPs.length);
+        listener.shareStartInfo(parts);
         for (int i = 0; i < IPs.length; i++) {
 
             final SFSClientListener l2 = listener;

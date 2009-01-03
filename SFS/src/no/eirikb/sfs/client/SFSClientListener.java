@@ -29,4 +29,6 @@ public interface SFSClientListener {
     public void sendStatus(LocalShare ls, ShareFolder share, int partNumber, long bytes);
 
     public void sendDone(LocalShare ls);
+
+    public void shareStartInfo(ShareFolder[] parts);
 }
