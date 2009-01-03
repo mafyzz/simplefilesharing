@@ -67,7 +67,7 @@ public class MD5File {
             }
             return total;
         } else if (file.isFile()) {
-            return MD5File(file);
+            return file.getName() + ":" + MD5File(file);
         }
         return null;
     }
