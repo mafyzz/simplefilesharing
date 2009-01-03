@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import no.eirikb.sfs.event.server.CreateShareEvent;
@@ -28,6 +29,7 @@ import no.eirikb.sfs.share.ShareUtility;
 public class MainClient extends javax.swing.JFrame implements SFSClientListener {
 
     private SFSClient client;
+    private JProgressBar[] bars;
 
     /** Creates new form MainClient */
     public MainClient() {
@@ -111,8 +113,6 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
         jScrollPane2 = new javax.swing.JScrollPane();
         availableSharesTree = new javax.swing.JTree();
         transferPanel = new javax.swing.JPanel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        transferList = new javax.swing.JList();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         addShareMenuItem = new javax.swing.JMenuItem();
@@ -173,8 +173,8 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
         availableSharesLabel.setText("Available shares");
         availableSharesPanel.add(availableSharesLabel, java.awt.BorderLayout.NORTH);
 
-        availableSharesTree.setComponentPopupMenu(AvailableSharesPopup);
         availableSharesTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Shares")));
+        availableSharesTree.setComponentPopupMenu(AvailableSharesPopup);
         jScrollPane2.setViewportView(availableSharesTree);
 
         availableSharesPanel.add(jScrollPane2, java.awt.BorderLayout.CENTER);
@@ -183,13 +183,8 @@ public class MainClient extends javax.swing.JFrame implements SFSClientListener 
 
         verticalSplitPane.setTopComponent(horizontalSplitPane);
 
-        transferPanel.setLayout(new java.awt.BorderLayout());
-
-        transferList.setModel(new DefaultListModel());
-        jScrollPane3.setViewportView(transferList);
-
-        transferPanel.add(jScrollPane3, java.awt.BorderLayout.CENTER);
-
+        transferPanel.setMinimumSize(new java.awt.Dimension(0, 100));
+        transferPanel.setLayout(new java.awt.GridLayout());
         verticalSplitPane.setRightComponent(transferPanel);
 
         mainPanel.add(verticalSplitPane, java.awt.BorderLayout.CENTER);
@@ -278,7 +273,6 @@ private void downloadShareMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JSplitPane horizontalSplitPane;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JPanel loginPanel;
@@ -288,12 +282,36 @@ private void downloadShareMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JLabel mySharesLabel;
     private javax.swing.JList mySharesList;
     private javax.swing.JPanel mySharesPanel;
-    private javax.swing.JList transferList;
     private javax.swing.JPanel transferPanel;
     private javax.swing.JSplitPane verticalSplitPane;
     // End of variables declaration//GEN-END:variables
 
     public void removeShare(Share share) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void receiveStatus(LocalShare ls, ShareFolder share, int partNumber, long bytes) {
+        bars[partNumber].setValue(bars[partNumber].getValue() + (int) bytes);
+    }
+
+    public void reveiveDone(LocalShare ls) {
+        JOptionPane.showMessageDialog(null, "Receive done!");
+    }
+
+    public void sendStatus(LocalShare ls, ShareFolder share, int partNumber, long bytes) {
+    }
+
+    public void sendDone(LocalShare ls) {
+        JOptionPane.showMessageDialog(null, "Send done!");
+    }
+
+    public void shareStartInfo(ShareFolder[] parts) {
+        bars = new JProgressBar[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            bars[i] = new JProgressBar();
+            bars[i].setMaximum((int) (parts[i].getSize()));
+            bars[i].setVisible(true);
+            transferPanel.add(bars[i]);
+        }
     }
 }
