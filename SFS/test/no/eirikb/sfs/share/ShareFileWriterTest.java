@@ -58,7 +58,13 @@ public class ShareFileWriterTest {
         final ShareFolder[] readers = new ShareFolder[PARTS];
 
         for (int i = 0; i < PARTS; i++) {
-            readers[i] = ShareUtility.cropShare(readShare, i * split, (i + 1) * split);
+            if (i != PARTS - 1) {
+                readers[i] = ShareUtility.cropShare(readShare, i * split, (i + 1) * split);
+            } else {
+                long split2 = readShare.getShare().getSize() - (PARTS * split);
+                split2 += split;
+                readers[i] = ShareUtility.cropShare(readShare, i * split, (i + 1) * split2);
+            }
         }
 
         System.out.println("Reading and writing shares...");
@@ -66,7 +72,7 @@ public class ShareFileWriterTest {
         for (int i = 0; i < PARTS; i++) {
             final int j = i;
             //       new Thread() {
-            //     public void run() {
+            //         public void run() {
             ShareFolder part = (ShareFolder) ObjectClone.clone(readers[j]);
             ShareFileReader reader = new ShareFileReader(readers[j], files[0]);
             ShareFileWriter writer = new ShareFileWriter(part,
@@ -81,8 +87,8 @@ public class ShareFileWriterTest {
             System.out.println(tot + " " + split);
             System.out.println((int) ((j + 1) * 100.0 / PARTS) + "% Complete");
         }
-        //  }.start();
-        // }
+        //        }.start();
+        //    }
 
 
         File resultFile = new File("Downloads/" + readShare.getName());
