@@ -100,6 +100,11 @@ public class ServerTest {
             public void sendDone(LocalShare ls) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
+
+            public void shareStartInfo(ShareFolder[] parts) {
+                System.out.println(name + ": Amount of shares: " + parts.length);
+
+            }
         }, listenPort);
     }
 
@@ -146,12 +151,30 @@ public class ServerTest {
         SFSClient c3 = createClient("Client 3", 40003);
         Thread.sleep(1000);
 
+        System.out.println("Client 3: Set download folder");
+        c3.setShareFolder("Downloads3/");
+
         System.out.println("Client 3: Download share 0 (" + c3.getShares().get(0) + ")");
         done = false;
         c3.getClient().sendObject(new GetShareOwnersEvent(c3.getShares().get(0)));
         while (!done) {
             Thread.yield();
         }
+
+        System.out.println("Client 4: Create");
+        SFSClient c4 = createClient("Client 4", 40004);
+        Thread.sleep(1000);
+
+        System.out.println("Client 4: Set download folder");
+        c4.setShareFolder("Downloads4/");
+
+        System.out.println("Client 4: Download share 0 (" + c4.getShares().get(0) + ")");
+        done = false;
+        c4.getClient().sendObject(new GetShareOwnersEvent(c4.getShares().get(0)));
+        while (!done) {
+            Thread.yield();
+        }
+
     }
 
     @Test

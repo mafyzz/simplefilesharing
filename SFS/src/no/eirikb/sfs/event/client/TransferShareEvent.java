@@ -63,10 +63,8 @@ public class TransferShareEvent extends Event {
             LocalShare ls = sfsClient.getLocalShares().get(hash);
             byte[] buf = new byte[client.getSocket().getReceiveBufferSize()];
             int b;
-            long tot = 0;
             while ((b = in.read(buf)) >= 0) {
                 writer.write(buf, b);
-                tot += b;
                 listener.receiveStatus(ls, part, partNumber, b);
             }
             ls.incShares();

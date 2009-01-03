@@ -46,6 +46,7 @@ public class SFSClient implements ClientAction, ServerAction {
     public SFSClient(SFSClientListener listener, int listenPort) throws IOException {
         this.listener = listener;
         String host = MultiCast.getIP();
+        System.out.println(host);
         int port = Integer.parseInt(host.substring(host.indexOf(' ') + 1).trim());
         host = host.substring(0, host.indexOf(' '));
         client = new Client(this);
