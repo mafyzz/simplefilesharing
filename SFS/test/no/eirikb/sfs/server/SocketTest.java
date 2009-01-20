@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 public class SocketTest {
 
     private final String sharePath = "/home/eirikb/test";
-    private final int PARTS = 1;
+    private final int PARTS = 100;
     private int connected;
     private int done;
 
@@ -71,7 +71,7 @@ public class SocketTest {
 
         System.out.println("Creating shares...");
 
-        final ShareFolder[] shareFolders = ShareUtility.cropShareToParts(readShare, 1);
+        final ShareFolder[] shareFolders = ShareUtility.cropShareToParts(readShare, PARTS);
 
         new Thread() {
 
@@ -80,23 +80,43 @@ public class SocketTest {
                     System.out.println("Creating server...");
                     ServerSocket serverSocket = new ServerSocket(40000);
                     System.out.println("Accept clients...");
-                    Socket server = serverSocket.accept();
+                    connected = 0;
+                    for (int j = 0; j < PARTS; j++) {
+                        final int i = j;
+                        final Socket server = serverSocket.accept();
+                        new Thread() {
 
-                    ShareFolder part = (ShareFolder) ObjectClone.clone(shareFolders[0]);
-                    ShareFileWriter writer = new ShareFileWriter(part, new File("Downloads/" + part.getName()));
-                    byte[] b = new byte[server.getSendBufferSize()];
-                    int read;
-                    int tot = 0;
-                    while (tot < shareFolders[0].getSize()) {
-                        read = server.getInputStream().read(b);
-                        writer.write(b, read);
-                        tot += read;
+                            public void run() {
+                                try {
+                                    ShareFolder part = (ShareFolder) ObjectClone.clone(shareFolders[i]);
+                                    ShareFileWriter writer = new ShareFileWriter(part, new File("Downloads/" + part.getName()));
+                                    byte[] b = new byte[server.getReceiveBufferSize()];
+                                    int read;
+                                    int tot = 0;
+                                    while (tot < shareFolders[i].getSize()) {
+                                        read = server.getInputStream().read(b);
+                                        writer.write(b, read);
+                                        tot += read;
+                                    }
+                                    done++;
+                                    System.out.println((int) (done * 100.0 / PARTS) + "% Complete");
+                                    System.out.println("DONE");
+                                    server.close();
+                                } catch (IOException ex) {
+                                    Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        }.start();
+                        if (connected + 1 == PARTS) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                        connected++;
                     }
-                    done++;
-                    System.out.println((int) (done * 100.0 / PARTS) + "% Complete");
-                    System.out.println("DONE");
                     serverSocket.close();
-                    server.close();
                 } catch (IOException ex) {
                     Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -105,26 +125,38 @@ public class SocketTest {
 
         Thread.sleep(1000);
 
+
         System.out.println("Creating clients...");
 
-        Socket client = new Socket("localhost", 40000);
+        final Socket[] clients = new Socket[PARTS];
+
+        for (int i = 0; i < PARTS; i++) {
+            clients[i] = new Socket("localhost", 40000);
+        }
+
+        while (connected < PARTS) {
+            Thread.yield();
+        }
+
         System.out.println("Reading and writing shares... ");
 
         done = 0;
-        ShareFileReader reader = new ShareFileReader(shareFolders[0], files[0]);
-        long tot = 0;
-        byte[] b = new byte[client.getSendBufferSize()];
-        while (tot < shareFolders[0].getSize()) {
-            try {
-                reader.read(b, 0);
-                client.getOutputStream().write(b);
-                tot += b.length;
-            } catch (IOException ex) {
-                Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
+        for (int j = 0; j < PARTS; j++) {
+            final int i = j;
+            ShareFileReader reader = new ShareFileReader(shareFolders[i], files[0]);
+            long tot = 0;
+            byte[] b = new byte[clients[i].getSendBufferSize()];
+            while (tot < shareFolders[i].getSize()) {
+                try {
+                    reader.read(b, 0);
+                    clients[i].getOutputStream().write(b);
+                    tot += b.length;
+                } catch (IOException ex) {
+                    Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+            System.out.println("OUS!");
         }
-        System.out.println("OUS!");
-
 
         while (done < PARTS) {
             Thread.yield();
