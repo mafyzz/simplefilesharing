@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class ShareFileWriterTest {
 
     private final String sharePath = "/home/eirikb/test";
-    private final int PARTS = 100;
+    private final int PARTS = 88;
     private int done;
 
     public ShareFileWriterTest() {
@@ -70,7 +70,7 @@ public class ShareFileWriterTest {
                     ShareFileWriter writer = new ShareFileWriter(part,
                             new File("Downloads/" + readers[j].getName()));
                     long tot = 0;
-                    byte[] b = new byte[25350];
+                    byte[] b = new byte[10000];
                     while (tot < readers[j].getSize()) {
                         reader.read(b, 0);
                         writer.write(b, b.length);
@@ -92,5 +92,6 @@ public class ShareFileWriterTest {
         System.out.println("Init hash:   " + initHash);
         System.out.println("Result hash: " + resultHash);
         assertEquals(initHash, resultHash);
+
     }
 }

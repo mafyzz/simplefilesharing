@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 public class SocketTest {
 
     private final String sharePath = "/home/eirikb/test";
-    private final int PARTS = 100;
+    private final int PARTS = 50;
     private int connected;
     private int done;
 
@@ -100,7 +100,6 @@ public class SocketTest {
                                     }
                                     done++;
                                     System.out.println((int) (done * 100.0 / PARTS) + "% Complete");
-                                    System.out.println("DONE");
                                     server.close();
                                 } catch (IOException ex) {
                                     Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -143,19 +142,27 @@ public class SocketTest {
         done = 0;
         for (int j = 0; j < PARTS; j++) {
             final int i = j;
-            ShareFileReader reader = new ShareFileReader(shareFolders[i], files[0]);
-            long tot = 0;
-            byte[] b = new byte[clients[i].getSendBufferSize()];
-            while (tot < shareFolders[i].getSize()) {
-                try {
-                    reader.read(b, 0);
-                    clients[i].getOutputStream().write(b);
-                    tot += b.length;
-                } catch (IOException ex) {
-                    Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
+            new Thread() {
+
+                public void run() {
+                    try {
+                        ShareFileReader reader = new ShareFileReader(shareFolders[i], files[0]);
+                        long tot = 0;
+                        byte[] b = new byte[clients[i].getSendBufferSize()];
+                        while (tot < shareFolders[i].getSize()) {
+                            try {
+                                reader.read(b, 0);
+                                clients[i].getOutputStream().write(b);
+                                tot += b.length;
+                            } catch (IOException ex) {
+                                Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    } catch (SocketException ex) {
+                        Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
-            }
-            System.out.println("OUS!");
+            }.start();
         }
 
         while (done < PARTS) {
