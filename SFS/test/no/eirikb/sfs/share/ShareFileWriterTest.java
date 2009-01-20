@@ -92,6 +92,5 @@ public class ShareFileWriterTest {
         System.out.println("Init hash:   " + initHash);
         System.out.println("Result hash: " + resultHash);
         assertEquals(initHash, resultHash);
-
     }
 }
