@@ -11,6 +11,7 @@ package no.eirikb.sfs.event.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.client.Client;
@@ -22,6 +23,7 @@ import no.eirikb.sfs.event.server.DownloadCompleteEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
+import no.eirikb.sfs.share.ShareFileReader;
 import no.eirikb.sfs.share.ShareFileWriter;
 import no.eirikb.sfs.share.ShareFolder;
 
@@ -51,7 +53,29 @@ public class TransferShareEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        server.sendObject(new TransferShareEvent(hash, part, partNumber));
+        server.setRun(false);
+        try {
+            LocalShare ls = client.getLocalShares().get(hash);
+            ShareFileReader reader = new ShareFileReader(part, ls.getFile());
+            byte[] buf = new byte[server.getSocket().getSendBufferSize()];
+            long tot = 0;
+            OutputStream out = server.getSocket().getOutputStream();
+            while (tot < part.getSize()) {
+                reader.read(buf, 0);
+                out.write(buf);
+                tot += buf.length;
+                listener.sendStatus(ls, part, partNumber, tot);
+            }
+            out.flush();
+            out.close();
+        } catch (IOException ex) {
+        } finally {
+            try {
+                server.getSocket().close();
+            } catch (IOException ex) {
+            }
+        }
     }
 
     public void execute(SFSClientListener listener, SFSClient sfsClient, Client client) {
@@ -62,10 +86,13 @@ public class TransferShareEvent extends Event {
             InputStream in = client.getSocket().getInputStream();
             LocalShare ls = sfsClient.getLocalShares().get(hash);
             byte[] buf = new byte[client.getSocket().getReceiveBufferSize()];
-            int b;
-            while ((b = in.read(buf)) >= 0) {
-                writer.write(buf, b);
-                listener.receiveStatus(ls, part, partNumber, b);
+            int read;
+            long tot = 0;
+            while (tot < part.getSize()) {
+                read = in.read(buf);
+                writer.write(buf, read);
+                tot += read;
+                listener.receiveStatus(ls, part, partNumber, read);
             }
             ls.incShares();
             if (ls.getShares() == ls.getTotalShares()) {

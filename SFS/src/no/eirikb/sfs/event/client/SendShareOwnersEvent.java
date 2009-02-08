@@ -6,7 +6,6 @@
  */
 package no.eirikb.sfs.event.client;
 
-import no.eirikb.sfs.event.server.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -17,7 +16,6 @@ import no.eirikb.sfs.client.LocalShare;
 import no.eirikb.sfs.client.SFSClient;
 import no.eirikb.sfs.client.SFSClientListener;
 import no.eirikb.sfs.event.Event;
-import no.eirikb.sfs.event.server.RequestShareEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.sfsserver.SFSServer;
 import no.eirikb.sfs.sfsserver.SFSServerListener;
@@ -69,7 +67,7 @@ public class SendShareOwnersEvent extends Event {
                     }
                 });
                 c.connect(IPs[i], ports[i]);
-                c.sendObject(new RequestShareEvent(share.getHash(), parts[i], i));
+                c.sendObject(new TransferShareEvent(share.getHash(), parts[i], i));
             } catch (IOException ex) {
                 Logger.getLogger(SendShareOwnersEvent.class.getName()).log(Level.SEVERE, null, ex);
             }
