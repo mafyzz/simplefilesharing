@@ -23,25 +23,63 @@ public class ShareFileWriter extends ShareFileHandler {
 
     private RandomAccessFile currentStream;
     private int written;
+    private int blength;
 
     public ShareFileWriter(ShareFolder share, File path) {
         super(share, path);
         resetStream();
     }
 
-    public void write(byte[] b, int length) {
+    public void writeTest(byte[] b, int start) {
         try {
-            if (length + written <= currentFile.getStop()) {
-                currentStream.write(b, 0, length);
+            //Total length of file, cropped
+            long fileSize = currentFile.getStop() - currentFile.getStart();
+            //Bytes to write
+            int length = b.length - start;
+
+            //Number of bytes to write is not longer than file end
+            if (written + length < fileSize) {
+                currentStream.write(b, start, length);
                 written += length;
+            //Number of bytes exceed end of file
             } else {
-                byte[] b2 = new byte[(int) (currentFile.getStop() - written)];
-                System.arraycopy(b, 0, b2, 0, b2.length);
-                write(b2, b2.length);
+                //Rest of bytes to write
+                int rest = (int) (fileSize - written);
+                currentStream.write(b, start, rest);
+                //Send the rest to next file
                 if (resetStream()) {
-                    byte[] b3 = new byte[length - b2.length];
-                    System.arraycopy(b, b2.length, b3, 0, b3.length);
-                    write(b3, b3.length);
+                    writeTest(b, start + rest);
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void write(byte[] b, int blength) {
+        this.blength = blength;
+        write2(b, 0);
+    }
+
+    private void write2(byte[] b, int start) {
+        try {
+            //Total length of file, cropped
+            long fileSize = currentFile.getStop() - currentFile.getStart();
+            //Bytes to write
+            int length = blength - start;
+
+            //Number of bytes to write is not longer than file end
+            if (written + length < fileSize) {
+                currentStream.write(b, start, length);
+                written += length;
+            //Number of bytes exceed end of file
+            } else {
+                //Rest of bytes to write
+                int rest = (int) (fileSize - written);
+                currentStream.write(b, start, rest);
+                //Send the rest to next file
+                if (resetStream()) {
+                    write2(b, start + rest);
                 }
             }
         } catch (IOException ex) {
@@ -56,12 +94,15 @@ public class ShareFileWriter extends ShareFileHandler {
         }
         try {
             new File(getPath() + currentFile.getPath()).mkdirs();
+            if (currentStream != null) {
+                currentStream.close();
+            }
             currentStream = new RandomAccessFile(getPath() + currentFile.getPath() + currentFile.getName(), "rw");
             currentStream.seek((int) currentFile.getStart());
-            written = (int) currentFile.getStart();
+            written = 0;
             return true;
-        } catch (IOException ex) {
-            Logger.getLogger(ShareFileWriter.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }

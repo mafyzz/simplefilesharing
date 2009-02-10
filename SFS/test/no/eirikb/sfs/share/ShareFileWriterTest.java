@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class ShareFileWriterTest {
 
     private final String sharePath = "/home/eirikb/test";
-    private final int PARTS = 88;
+    private final int PARTS = 200;
     private int done;
 
     public ShareFileWriterTest() {
@@ -72,7 +72,7 @@ public class ShareFileWriterTest {
                     long tot = 0;
                     byte[] b = new byte[10000];
                     while (tot < readers[j].getSize()) {
-                        reader.read(b, 0);
+                        reader.read(b);
                         writer.write(b, b.length);
                         tot += b.length;
                     }

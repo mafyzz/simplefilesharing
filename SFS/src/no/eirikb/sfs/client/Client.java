@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.event.Event;
+import no.eirikb.sfs.event.client.TransferShareEvent;
 import no.eirikb.sfs.server.Server;
 
 /**
@@ -52,33 +53,30 @@ public class Client extends Thread {
         }
     }
 
-    public void setRun(boolean run) {
-        this.run = run;
-    }
-
     @Override
     public void run() {
+        ObjectInputStream objectIn = null;
         try {
-            ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream());
+            objectIn = new ObjectInputStream(socket.getInputStream());
+            int i = 0;
             while (run) {
+                System.out.println("RUN " + ++i);
                 Event event = (Event) objectIn.readObject();
                 action.onClientEvent(event);
+                if (event instanceof TransferShareEvent) {
+                    socket.close();
+                    run = false;
+                }
             }
         } catch (ClassNotFoundException ex) {
-            if (run) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            if (run) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 socket.close();
             } catch (IOException ex) {
-                if (run) {
-                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

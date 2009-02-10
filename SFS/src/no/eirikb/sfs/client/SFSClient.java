@@ -73,7 +73,6 @@ public class SFSClient implements ClientAction, ServerAction {
 
     public void close() {
         serverListener.close();
-        client.setRun(false);
         try {
             client.getSocket().close();
         } catch (IOException ex) {

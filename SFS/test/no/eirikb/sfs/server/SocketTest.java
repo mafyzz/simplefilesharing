@@ -7,7 +7,6 @@ package no.eirikb.sfs.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -34,7 +33,7 @@ import static org.junit.Assert.*;
 public class SocketTest {
 
     private final String sharePath = "/home/eirikb/test";
-    private final int PARTS = 50;
+    private final int PARTS = 100;
     private int connected;
     private int done;
 
@@ -69,12 +68,17 @@ public class SocketTest {
 
         Share readShare = ShareUtility.createShare(files, "TestShare");
 
+        Share writeShare = (Share) ObjectClone.clone(readShare);
+
         System.out.println("Creating shares...");
 
-        final ShareFolder[] shareFolders = ShareUtility.cropShareToParts(readShare, PARTS);
+        final ShareFolder[] readShareFolders = ShareUtility.cropShareToParts(readShare, PARTS);
+
+        final ShareFolder[] writeShareFolders = ShareUtility.cropShareToParts(writeShare, PARTS);
 
         new Thread() {
 
+            @Override
             public void run() {
                 try {
                     System.out.println("Creating server...");
@@ -86,16 +90,20 @@ public class SocketTest {
                         final Socket server = serverSocket.accept();
                         new Thread() {
 
+                            @Override
                             public void run() {
                                 try {
-                                    ShareFolder part = (ShareFolder) ObjectClone.clone(shareFolders[i]);
-                                    ShareFileWriter writer = new ShareFileWriter(part, new File("Downloads/" + part.getName()));
+                                    ShareFileWriter writer = new ShareFileWriter(
+                                            writeShareFolders[i], new File(
+                                            "Downloads/" + writeShareFolders[i].getName()));
                                     byte[] b = new byte[server.getReceiveBufferSize()];
                                     int read;
                                     int tot = 0;
-                                    while (tot < shareFolders[i].getSize()) {
+                                    while (tot < writeShareFolders[i].getSize()) {
                                         read = server.getInputStream().read(b);
-                                        writer.write(b, read);
+                                        byte[] b2 = new byte[read];
+                                        System.arraycopy(b, 0, b2, 0, b2.length);
+                                        writer.writeTest(b2, 0);
                                         tot += read;
                                     }
                                     done++;
@@ -146,12 +154,12 @@ public class SocketTest {
 
                 public void run() {
                     try {
-                        ShareFileReader reader = new ShareFileReader(shareFolders[i], files[0]);
+                        ShareFileReader reader = new ShareFileReader(readShareFolders[i], files[0]);
                         long tot = 0;
                         byte[] b = new byte[clients[i].getSendBufferSize()];
-                        while (tot < shareFolders[i].getSize()) {
+                        while (tot < readShareFolders[i].getSize()) {
                             try {
-                                reader.read(b, 0);
+                                reader.read(b);
                                 clients[i].getOutputStream().write(b);
                                 tot += b.length;
                             } catch (IOException ex) {

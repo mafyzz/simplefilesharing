@@ -29,31 +29,29 @@ public class ShareFileReader extends ShareFileHandler {
         resetStream();
     }
 
-    public void read(byte[] b, int start) {
+    public void read(byte[] b) {
+        read(b, 0);
+    }
+
+    private void read(byte[] b, int start) {
         try {
-            if (start > b.length) {
-                System.out.println("FUCK");
-            }
-            // byte array smaller then file size
-            if (read + b.length < currentFile.getStop()) {
-                //First time run
-                if (start == 0) {
-                    currentStream.readFully(b);
-                    read += b.length;
-                // Byte array is not empty!
-                } else {
-                    byte[] b2 = new byte[b.length - start];
-                    currentStream.readFully(b2);
-                    System.arraycopy(b2, 0, b, start, b2.length);
-                    read += b2.length;
-                }
-            // Byte array is longer then file length
+            //Total length of file, cropped
+            long fileSize = currentFile.getStop() - currentFile.getStart();
+            //Bytes to write
+            int length = b.length - start;
+
+            //Number of bytes to write is not longer than file end
+            if (read + length < fileSize) {
+                currentStream.readFully(b, start, length);
+                read += length;
+            //Number of bytes exceed end of file
             } else {
-                byte[] b2 = new byte[(int) (currentFile.getStop() - read)];
-                currentStream.readFully(b2);
-                System.arraycopy(b2, 0, b, start, b2.length);
+                //Rest of bytes to write
+                int rest = (int) (fileSize - read);
+                currentStream.readFully(b, start, rest);
+                //Send the rest to next file
                 if (resetStream()) {
-                    read(b, b2.length + start);
+                    read(b, start + rest);
                 }
             }
         } catch (IOException ex) {
@@ -67,11 +65,14 @@ public class ShareFileReader extends ShareFileHandler {
             return false;
         }
         try {
+            if (currentStream != null) {
+                currentStream.close();
+            }
             currentStream = new RandomAccessFile(getPath() + currentFile.getPath() + currentFile.getName(), "r");
             currentStream.seek((int) currentFile.getStart());
-            read = (int) currentFile.getStart();
+            read = 0;
             return true;
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ShareFileReader.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;

@@ -35,7 +35,11 @@ public class MD5File {
                     }
                     byte[] md5sum = digest.digest();
                     BigInteger bigInt = new BigInteger(1, md5sum);
-                    return bigInt.toString(16);
+                    String md5 = bigInt.toString(16);
+                    if (md5.length() == 31) {
+                        md5 = "0" + md5;
+                    }
+                    return md5;
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {

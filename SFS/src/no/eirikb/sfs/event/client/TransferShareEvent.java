@@ -54,7 +54,6 @@ public class TransferShareEvent extends Event {
 
     public void execute(SFSClientListener listener, SFSClient client, Server server) {
         server.sendObject(new TransferShareEvent(hash, part, partNumber));
-        server.setRun(false);
         try {
             LocalShare ls = client.getLocalShares().get(hash);
             ShareFileReader reader = new ShareFileReader(part, ls.getFile());
@@ -62,25 +61,27 @@ public class TransferShareEvent extends Event {
             long tot = 0;
             OutputStream out = server.getSocket().getOutputStream();
             while (tot < part.getSize()) {
-                reader.read(buf, 0);
+                reader.read(buf);
                 out.write(buf);
                 tot += buf.length;
                 listener.sendStatus(ls, part, partNumber, tot);
             }
+            listener.sendDone(ls);
             out.flush();
             out.close();
         } catch (IOException ex) {
+            ex.printStackTrace();
         } finally {
             try {
                 server.getSocket().close();
             } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
     }
 
     public void execute(SFSClientListener listener, SFSClient sfsClient, Client client) {
         try {
-            client.setRun(false);
             ShareFileWriter writer = new ShareFileWriter(part,
                     new File(sfsClient.getShareFolder() + part.getName()));
             InputStream in = client.getSocket().getInputStream();
@@ -96,7 +97,7 @@ public class TransferShareEvent extends Event {
             }
             ls.incShares();
             if (ls.getShares() == ls.getTotalShares()) {
-                listener.reveiveDone(ls);
+                listener.receiveDone(ls);
                 sfsClient.getClient().sendObject(new DownloadCompleteEvent(hash));
             }
         } catch (IOException ex) {

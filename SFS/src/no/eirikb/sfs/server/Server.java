@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.event.Event;
+import no.eirikb.sfs.event.client.TransferShareEvent;
 
 /**
  * A Blocking server
@@ -61,36 +62,29 @@ public class Server extends Thread {
         }
     }
 
-    public void setRun(boolean run) {
-        this.run = run;
-    }
-
     @Override
     public void run() {
+        ObjectInputStream objectIn = null;
         try {
-            ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream());
+            objectIn = new ObjectInputStream(socket.getInputStream());
             while (run) {
                 Event event = (Event) objectIn.readObject();
                 action.onServerEvent(this, event);
+                if (event instanceof TransferShareEvent) {
+                    socket.close();
+                    run = false;
+                }
             }
-        }catch (EOFException e) {
-            
         } catch (ClassNotFoundException ex) {
-            if (run) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            if (run) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 action.onClientDisconnect(this);
                 socket.close();
             } catch (IOException ex) {
-                if (run) {
-                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

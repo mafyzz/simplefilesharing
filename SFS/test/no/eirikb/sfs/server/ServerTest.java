@@ -84,7 +84,7 @@ public class ServerTest {
                 int percent2 = (int) ((tot * 100) / ls.getShare().getShare().getSize());
                 if (percent2 != percent) {
                     percent = percent2;
-                    System.out.println(percent + "%");
+                    System.out.println(percent + "% (part " + partNumber + ")");
                 }
             }
 
@@ -92,13 +92,13 @@ public class ServerTest {
                 //   System.out.println("Send! " + startByte + ' ' + bytes);
             }
 
-            public void reveiveDone(LocalShare ls) {
-                System.out.println("Done! At last");
+            public void receiveDone(LocalShare ls) {
+                System.out.println("Receive done.");
                 done = true;
             }
 
             public void sendDone(LocalShare ls) {
-                throw new UnsupportedOperationException("Not supported yet.");
+                System.out.println("Send done.");
             }
 
             public void shareStartInfo(ShareFolder[] parts) {
@@ -137,7 +137,7 @@ public class ServerTest {
         Thread.sleep(1000);
 
         System.out.println("Client 2: Create");
-        SFSClient c2 = createClient("Client ", 40002);
+        SFSClient c2 = createClient("Client 2", 40002);
         Thread.sleep(1000);
 
         System.out.println("Client 2: Download share 0 (" + c2.getShares().get(0) + ")");
