@@ -70,10 +70,12 @@ public class ShareFileWriterTest {
                     ShareFileWriter writer = new ShareFileWriter(part,
                             new File("Downloads/" + readers[j].getName()));
                     long tot = 0;
-                    byte[] b = new byte[10000];
+                    byte[] b = new byte[(int) (Math.random() * 10000)];
                     while (tot < readers[j].getSize()) {
                         reader.read(b);
-                        writer.write(b, b.length);
+                        byte[] bwrite = new byte[(int) (Math.random() * 10000) + b.length];
+                        System.arraycopy(b, 0, bwrite, 0, b.length);
+                        writer.write(bwrite, b.length);
                         tot += b.length;
                     }
                     done++;

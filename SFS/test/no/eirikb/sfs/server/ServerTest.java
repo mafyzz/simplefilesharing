@@ -174,7 +174,6 @@ public class ServerTest {
         while (!done) {
             Thread.yield();
         }
-
     }
 
     @Test
