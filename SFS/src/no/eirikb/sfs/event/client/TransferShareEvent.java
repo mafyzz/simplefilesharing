@@ -63,11 +63,11 @@ public class TransferShareEvent extends Event {
             while (tot < part.getSize()) {
                 reader.read(buf);
                 out.write(buf);
+                out.flush();
                 tot += buf.length;
                 listener.sendStatus(ls, part, partNumber, tot);
             }
             listener.sendDone(ls);
-            out.flush();
             out.close();
         } catch (IOException ex) {
             ex.printStackTrace();
