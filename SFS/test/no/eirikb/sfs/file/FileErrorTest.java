@@ -55,13 +55,15 @@ public class FileErrorTest {
         int beginning = -1;
         int last = 0;
         while (tot < size) {
-            byte[] b1 = new byte[BUFFERSIZE];
-            byte[] b2 = new byte[BUFFERSIZE];
+            int l = tot + BUFFERSIZE < size ? BUFFERSIZE : (int)(size - tot);
+
+            byte[] b1 = new byte[l];
+            byte[] b2 = new byte[l];
             in1.readFully(b1);
             in2.readFully(b2);
 
 
-            for (int i = 0; i < BUFFERSIZE; i++) {
+            for (int i = 0; i < l; i++) {
                 if (b1[i] != b2[i]) {
                     if (last < tot + i - 1) {
                         if (beginning < 0) {
@@ -75,7 +77,7 @@ public class FileErrorTest {
                 }
             }
 
-            tot += BUFFERSIZE;
+            tot += l;
 
             int pros2 = (int) (tot * 100L / size);
             if (pros2 != pros) {

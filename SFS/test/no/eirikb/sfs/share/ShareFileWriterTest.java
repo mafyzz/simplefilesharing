@@ -77,11 +77,6 @@ public class ShareFileWriterTest {
                         reader.read(b);
                         byte[] bwrite = new byte[(int) (Math.random() * 10000) + b.length];
                         System.arraycopy(b, 0, bwrite, 0, b.length);
-                        try {
-                            Thread.sleep(1);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(ShareFileWriterTest.class.getName()).log(Level.SEVERE, null, ex);
-                        }
                         writer.write(bwrite, b.length);
                         tot += b.length;
                     }
