@@ -58,9 +58,7 @@ public class Client extends Thread {
         ObjectInputStream objectIn = null;
         try {
             objectIn = new ObjectInputStream(socket.getInputStream());
-            int i = 0;
             while (run) {
-                System.out.println("RUN " + ++i);
                 Event event = (Event) objectIn.readObject();
                 action.onClientEvent(event);
                 if (event instanceof TransferShareEvent) {
