@@ -36,7 +36,8 @@ public class SendAddSharesEvent extends Event {
     }
 
     public void execute(SFSClientListener listener, SFSClient client) {
-        for (Share share : shares) {
+        for (int i = 0; i < shares.size(); i++) {
+            Share share = shares.get(i);
             client.getShares().add(share);
             listener.addShare(share);
         }
