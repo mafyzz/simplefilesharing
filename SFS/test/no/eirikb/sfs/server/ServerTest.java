@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  */
 public class ServerTest {
 
-    private final String sharePath = "/home/eirikb/test";
+    private final String SHAREPATH = "/home/eirikb/test";
     private boolean done;
     private static String initHash;
 
@@ -116,7 +116,7 @@ public class ServerTest {
     @Test
     public void initHashTest() {
         System.out.println("Creating hash...");
-        final File[] files = {new File(sharePath)};
+        final File[] files = {new File(SHAREPATH)};
         initHash = MD5File.MD5Directory(files[0]);
         System.out.println("Hash: " + initHash);
         assertNotNull(initHash);
@@ -133,7 +133,7 @@ public class ServerTest {
         Thread.sleep(1000);
 
         System.out.println("Client 1: Create share");
-        c1.createShare(new File(sharePath), "Test");
+        c1.createShare(new File(SHAREPATH), "Test");
         Thread.sleep(1000);
 
         System.out.println("Client 2: Create");
@@ -146,6 +146,12 @@ public class ServerTest {
         while (!done) {
             Thread.yield();
         }
+
+        File resultFile = new File("Downloads/Test");
+        String partHash = MD5File.MD5Directory(resultFile);
+        System.out.println("Init hash: " + initHash);
+        System.out.println("Part hash: " + partHash);
+        assertEquals(initHash, partHash);
 
         System.out.println("Client 3: Create");
         SFSClient c3 = createClient("Client 3", 40003);
