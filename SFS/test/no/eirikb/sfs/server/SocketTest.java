@@ -38,6 +38,8 @@ public class SocketTest {
     private final int PARTS = 50;
     private static String initHash;
     private int done;
+    private ServerSocket listener;
+    private Socket[] servers;
 
     public SocketTest() {
     }
@@ -83,18 +85,24 @@ public class SocketTest {
         System.out.println("Creating shares...");
 
         final ShareFolder[] shareFolders = ShareUtility.cropShareToParts(share, PARTS);
-
         new Thread() {
 
             @Override
             public void run() {
                 try {
+
                     System.out.println("Creating server...");
-                    ServerSocket serverSocket = new ServerSocket(40000);
+                    listener = new ServerSocket(40000);
+                    servers = new Socket[PARTS];
                     System.out.println("Accept clients...");
+
+                    for (int i = 0; i < PARTS; i++) {
+                        servers[i] = listener.accept();
+                    }
+
+
                     for (int j = 0; j < PARTS; j++) {
                         final int i = j;
-                        final Socket server = serverSocket.accept();
                         new Thread() {
 
                             @Override
@@ -103,10 +111,10 @@ public class SocketTest {
                                     ShareFileWriter writer = new ShareFileWriter(
                                             shareFolders[i], new File(
                                             "Downloads/" + shareFolders[i].getName()));
-                                    byte[] b = new byte[server.getReceiveBufferSize()];
+                                    byte[] b = new byte[servers[i].getReceiveBufferSize()];
                                     int read;
                                     int tot = 0;
-                                    InputStream in = server.getInputStream();
+                                    InputStream in = servers[i].getInputStream();
                                     while (tot < shareFolders[i].getSize()) {
                                         read = in.read(b);
                                         writer.write(b, read);
@@ -116,12 +124,14 @@ public class SocketTest {
                                     if (done == PARTS) {
                                         System.out.println("SERVER DONE!");
                                     }
-                                    server.close();
+                                    servers[i].close();
                                 } catch (IOException ex) {
                                     Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
                                 } finally {
                                     try {
-                                        server.close();
+                                        if (servers[i] != null) {
+                                            servers[i].close();
+                                        }
                                     } catch (IOException ex) {
                                         Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
                                     }
@@ -129,8 +139,8 @@ public class SocketTest {
                             }
                         }.start();
                     }
-                    serverSocket.close();
-                } catch (IOException ex) {
+                    listener.close();
+                } catch (Exception ex) {
                     Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -154,6 +164,8 @@ public class SocketTest {
         System.out.println("Creating clients...");
 
         done = 0;
+
+        Thread.sleep(5000);
 
         for (int j = 0; j < PARTS; j++) {
             final int i = j;

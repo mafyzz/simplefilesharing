@@ -71,8 +71,8 @@ public class Server extends Thread {
                 Event event = (Event) objectIn.readObject();
                 action.onServerEvent(this, event);
                 if (event instanceof TransferShareEvent) {
-                    socket.close();
                     run = false;
+                    socket.close();
                 }
             }
         } catch (ClassNotFoundException ex) {
