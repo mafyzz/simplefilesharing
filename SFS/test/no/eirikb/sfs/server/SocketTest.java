@@ -35,7 +35,7 @@ public class SocketTest {
 
     private final String SHAREPATH = "/home/eirikb/test";
     private final String SHARENAME = "TestShare";
-    private final int PARTS = 100;
+    private final int PARTS = 50;
     private static String initHash;
     private int done;
 
@@ -112,6 +112,10 @@ public class SocketTest {
                                         writer.write(b, read);
                                         tot += read;
                                     }
+                                    done++;
+                                    if (done == PARTS) {
+                                        System.out.println("SERVER DONE!");
+                                    }
                                     server.close();
                                 } catch (IOException ex) {
                                     Logger.getLogger(SocketTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -132,10 +136,11 @@ public class SocketTest {
             }
         }.start();
 
+
     }
 
     @Test
-    public void clientTest() {
+    public void clientTest() throws Exception {
         System.out.println("clienttest");
 
         final File[] files = {new File(SHAREPATH)};
@@ -193,6 +198,10 @@ public class SocketTest {
         while (done < PARTS) {
             Thread.yield();
         }
+
+        Thread.sleep(1000);
+
+        System.out.println("CLIENT DONE");
     }
 
     @Test

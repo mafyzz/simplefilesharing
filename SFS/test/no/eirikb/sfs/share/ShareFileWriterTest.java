@@ -1,6 +1,8 @@
 package no.eirikb.sfs.share;
 
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import no.eirikb.utils.serializable.ObjectClone;
 import no.eirikb.utils.file.MD5File;
 import org.junit.After;
@@ -75,11 +77,16 @@ public class ShareFileWriterTest {
                         reader.read(b);
                         byte[] bwrite = new byte[(int) (Math.random() * 10000) + b.length];
                         System.arraycopy(b, 0, bwrite, 0, b.length);
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(ShareFileWriterTest.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         writer.write(bwrite, b.length);
                         tot += b.length;
                     }
                     done++;
-                    System.out.println((int) (done * 100.0 / PARTS) + "% Complete");
+                  System.out.println((int) (done * 100.0 / PARTS) + "% Complete");
                 }
             }.start();
         }
