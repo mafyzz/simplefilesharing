@@ -8,6 +8,8 @@ package no.eirikb.sfs.event.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.client.Client;
@@ -54,20 +56,14 @@ public class SendShareOwnersEvent extends Event {
             client.getLocalShares().put(ls2.getShare().getHash(), ls);
         }
         ShareFolder[] parts = ShareUtility.cropShareToParts(share, IPs.length);
-        listener.shareStartInfo(parts);
+        listener.shareStartInfo(ls, parts);
         for (int i = 0; i < IPs.length; i++) {
-
-            final SFSClientListener l2 = listener;
-            final SFSClient sfsClient = client;
             try {
-                c = new Client(new ClientAction() {
-
-                    public void onClientEvent(Event event) {
-                        event.execute(l2, sfsClient, c);
-                    }
-                });
-                c.connect(IPs[i], ports[i]);
-                c.sendObject(new TransferShareEvent(share.getHash(), parts[i], i));
+                Socket c = new Socket(IPs[i], ports[i]);
+                TransferShareHackEvent t = new TransferShareHackEvent(share.getHash(), IPs.length, i, c, parts[i]);
+                t.execute(listener, client);
+            } catch (UnknownHostException ex) {
+                Logger.getLogger(SendShareOwnersEvent.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
                 Logger.getLogger(SendShareOwnersEvent.class.getName()).log(Level.SEVERE, null, ex);
             }

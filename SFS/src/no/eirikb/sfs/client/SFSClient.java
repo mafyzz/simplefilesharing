@@ -10,6 +10,8 @@ package no.eirikb.sfs.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -17,12 +19,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.event.Event;
+import no.eirikb.sfs.event.client.TransferShareHackEvent;
 import no.eirikb.sfs.event.server.CreateShareEvent;
 import no.eirikb.sfs.event.server.GetSharesEvent;
 import no.eirikb.sfs.event.server.SendUserInfoEvent;
 import no.eirikb.sfs.server.Server;
 import no.eirikb.sfs.server.ServerAction;
-import no.eirikb.sfs.server.ServerListener;
 import no.eirikb.sfs.sfsserver.User;
 import no.eirikb.sfs.share.Share;
 import no.eirikb.sfs.share.ShareUtility;
@@ -41,10 +43,9 @@ public class SFSClient implements ClientAction, ServerAction {
     private SFSClientListener listener;
     private Map<Integer, LocalShare> localShares;
     private String shareFolder;
-    private ServerListener serverListener;
 
-    public SFSClient(SFSClientListener listener, int listenPort) throws IOException {
-        this.listener = listener;
+    public SFSClient(SFSClientListener listener2, int listenPort2) throws IOException {
+        this.listener = listener2;
         String host = MultiCast.getIP();
         System.out.println(host);
         int port = Integer.parseInt(host.substring(host.indexOf(' ') + 1).trim());
@@ -55,9 +56,29 @@ public class SFSClient implements ClientAction, ServerAction {
         localShares = new Hashtable<Integer, LocalShare>();
         shareFolder = "Downloads/";
         client.connect(host, port);
-        client.sendObject(new SendUserInfoEvent(listenPort));
+        client.sendObject(new SendUserInfoEvent(listenPort2));
         client.sendObject(new GetSharesEvent());
-        serverListener = new ServerListener(this, listenPort);
+        final int listenPort = listenPort2;
+        final SFSClient sfsClient = this;
+        new Thread() {
+
+            public void run() {
+                try {
+                    ServerSocket serverListener = new ServerSocket(listenPort);
+                    while (true) {
+                        try {
+                            Socket socket = serverListener.accept();
+                            TransferShareHackEvent t = new TransferShareHackEvent(socket);
+                            t.executeServer(listener, sfsClient);
+                        } catch (IOException ex) {
+                            Logger.getLogger(SFSClient.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(SFSClient.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }.start();
     }
 
     public void createShare(File file, String name) {
@@ -72,7 +93,7 @@ public class SFSClient implements ClientAction, ServerAction {
     }
 
     public void close() {
-        serverListener.close();
+        //serverListener.close();
         try {
             client.getSocket().close();
         } catch (IOException ex) {
@@ -137,6 +158,15 @@ public class SFSClient implements ClientAction, ServerAction {
     }
 
     public void closeServerListener() {
-        serverListener.close();
+        //serverListener.close();
+    }
+
+    public synchronized Share getShare(int hash) {
+        for (Share share : shares) {
+            if (share.getHash() == hash) {
+                return share;
+            }
+        }
+        return null;
     }
 }

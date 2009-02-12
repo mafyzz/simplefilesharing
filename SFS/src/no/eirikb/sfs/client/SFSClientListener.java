@@ -30,5 +30,5 @@ public interface SFSClientListener {
 
     public void sendDone(LocalShare ls);
 
-    public void shareStartInfo(ShareFolder[] parts);
+    public void shareStartInfo(LocalShare ls, ShareFolder[] parts);
 }

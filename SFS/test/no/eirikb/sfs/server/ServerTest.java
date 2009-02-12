@@ -101,7 +101,7 @@ public class ServerTest {
                 System.out.println("Send done.");
             }
 
-            public void shareStartInfo(ShareFolder[] parts) {
+            public void shareStartInfo(LocalShare ls, ShareFolder[] parts) {
                 System.out.println(name + ": Amount of shares: " + parts.length);
 
             }

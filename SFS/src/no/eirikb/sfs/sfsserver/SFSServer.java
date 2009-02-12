@@ -42,7 +42,9 @@ public class SFSServer implements ServerAction {
         shareHolders = new Hashtable<Integer, ShareHolder>();
         shares = new ArrayList<Share>();
         serverListener = new ServerListener(this, port);
-        new MultiCast(java.net.InetAddress.getLocalHost().getHostAddress() +
+        // new MultiCast(java.net.InetAddress.getLocalHost().getHostAddress() +
+        //       ' ' + port).start();
+        new MultiCast("129.241.50.220" +
                 ' ' + port).start();
     }
 
