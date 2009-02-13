@@ -119,11 +119,10 @@ public class SFSUIView extends FrameView {
                 }
 
                 public void sendDone(LocalShare ls) {
-                    System.out.println("Done!");
+                    tps.get(ls.getShare().getHash()).done();
                 }
 
                 public void shareStartInfo(LocalShare ls, ShareFolder[] parts) {
-                    System.out.println("Number of parts: " + parts.length);
                     TransferPanel tp = new TransferPanel(ls, parts);
                     progressPanel.add(tp);
                     tps.put(ls.getShare().getHash(), tp);
@@ -257,11 +256,6 @@ public class SFSUIView extends FrameView {
         infoArea.setColumns(20);
         infoArea.setRows(5);
         infoArea.setName("infoArea"); // NOI18N
-        infoArea.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                infoAreaMouseClicked(evt);
-            }
-        });
         jScrollPane2.setViewportView(infoArea);
 
         privateShareListPanel.add(jScrollPane2, java.awt.BorderLayout.CENTER);
@@ -271,7 +265,7 @@ public class SFSUIView extends FrameView {
         progressSplitPane.setTopComponent(listSplitPane);
 
         progressPanel.setName("progressPanel"); // NOI18N
-        progressPanel.setLayout(new java.awt.GridLayout());
+        progressPanel.setLayout(new java.awt.GridLayout(1, 0));
         progressSplitPane.setRightComponent(progressPanel);
 
         mainPanel.add(progressSplitPane, java.awt.BorderLayout.CENTER);
@@ -346,12 +340,6 @@ public class SFSUIView extends FrameView {
         setMenuBar(menuBar);
         setStatusBar(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void infoAreaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_infoAreaMouseClicked
-        System.out.println("lol");
-        progressPanel.add(new Button("HAHA"));
-        progressPanel.updateUI();
-    }//GEN-LAST:event_infoAreaMouseClicked
 
     @Action
     public void createShare() {

@@ -7,7 +7,7 @@
 /*
  * TransferPanel.java
  *
- * Created on Feb 11, 2009, 8:14:01 PM
+ * Created on Feb 13, 2009, 8:05:29 AM
  */
 package sfsui;
 
@@ -23,15 +23,20 @@ public class TransferPanel extends javax.swing.JPanel {
 
     private LocalShare localShare;
     private JProgressBar[] progressBars;
+    private int max;
+    private int val;
 
     /** Creates new form TransferPanel */
     public TransferPanel(LocalShare localShare, ShareFolder[] parts) {
         this.localShare = localShare;
         initComponents();
+        transferLabel.setText("Downloading " + localShare.getShare().getName());
         progressBars = new JProgressBar[parts.length];
+        max = 0;
+        val = 0;
         for (int i = 0; i < parts.length; i++) {
-            progressBars[i] = new JProgressBar(0, (int)parts[i].getSize());
-            System.out.println(parts[i].getSize());
+            progressBars[i] = new JProgressBar(0, (int) parts[i].getSize());
+            max += progressBars[i].getMaximum();
             transferPanel.add(progressBars[i]);
             transferPanel.updateUI();
         }
@@ -39,8 +44,14 @@ public class TransferPanel extends javax.swing.JPanel {
 
     public void receiveStatus(int partNumber, long bytes) {
         progressBars[partNumber].setValue(progressBars[partNumber].getValue() + (int) bytes);
-        System.out.println(progressBars[partNumber].getMaximum() + " - " + progressBars[partNumber].getValue());
+        val += bytes;
+        int pros = (int) (val * 100L / max);
+        transferLabel.setText("Downloading " + localShare.getShare().getName() + "(" + pros + "%)");
         transferPanel.updateUI();
+    }
+
+    public void done() {
+        transferLabel.setText("Complete " + localShare.getShare().getName());
     }
 
     /** This method is called from within the constructor to
@@ -52,23 +63,23 @@ public class TransferPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         transferPanel = new javax.swing.JPanel();
+        transferLabel = new javax.swing.JLabel();
 
         setName("Form"); // NOI18N
         setLayout(new java.awt.BorderLayout());
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(sfsui.SFSUIApp.class).getContext().getResourceMap(TransferPanel.class);
-        jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
-        jLabel1.setName("jLabel1"); // NOI18N
-        add(jLabel1, java.awt.BorderLayout.PAGE_START);
-
         transferPanel.setName("transferPanel"); // NOI18N
         transferPanel.setLayout(new java.awt.GridLayout());
         add(transferPanel, java.awt.BorderLayout.CENTER);
+
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(sfsui.SFSUIApp.class).getContext().getResourceMap(TransferPanel.class);
+        transferLabel.setText(resourceMap.getString("transferLabel.text")); // NOI18N
+        transferLabel.setName("transferLabel"); // NOI18N
+        add(transferLabel, java.awt.BorderLayout.PAGE_START);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel transferLabel;
     private javax.swing.JPanel transferPanel;
     // End of variables declaration//GEN-END:variables
 }
