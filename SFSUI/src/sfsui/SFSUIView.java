@@ -4,6 +4,7 @@
 package sfsui;
 
 import java.io.IOException;
+import java.util.EventObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.client.LocalShare;
