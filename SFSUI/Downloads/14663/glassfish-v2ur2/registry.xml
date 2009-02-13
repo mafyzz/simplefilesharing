@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<project name="Service Tag Generation" default="setup.reg" basedir=".">
+<property file="./registry.properties"/>
+<property name="install.home" value="${basedir}"/>
+<target name="setup.reg" description="Generating the service tag registry file">
+<echo message="Creating the service registry file.."/>
+<java classname="com.sun.enterprise.registration.LocalServiceRegistry" fork="true" failonerror="true" >
+	<sysproperty key="srvcRegisFileName" value="${srvcRegis.file}" />
+	<sysproperty key="instance_urn" value="${instance.urn}" />
+	<sysproperty key="product_name" value="${product.name}" />
+	<sysproperty key="product_version" value="${product.version}" />
+	<sysproperty key="product_parent" value="${product.parent}" />
+	<sysproperty key="product_urn" value="${product.urn}" />
+	<sysproperty key="product_parent_urn" value="${product.parent.urn}" />
+	<sysproperty key="product_defined_inst_id" value="${product.instance.id}" />
+	<sysproperty key="product_vendor" value="${product.vendor}" />
+	<sysproperty key="platform_arch" value="${os.arch}" />
+	<sysproperty key="container" value="${container}" />
+	<sysproperty key="source" value="${source}" />
+	<sysproperty key="installer_uid" value="${installer_uid}" />
+	<sysproperty key="status" value="${status}" />
+	<sysproperty key="registration_status" value="${reg.status}" />
+	<classpath> 
+            <fileset dir="${install.home}/lib/registration">
+                <include name="*.jar" />
+            </fileset>
+	</classpath>
+</java> 
+</target>
+</project>
