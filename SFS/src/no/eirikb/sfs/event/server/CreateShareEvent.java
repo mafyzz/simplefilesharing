@@ -43,7 +43,9 @@ public class CreateShareEvent extends Event {
                 shareHolder.getUsers().add(u);
                 break;
             }
-            u.getServer().sendObject(new SendAddShareEvent(share));
+        }
+        for (int i = 0; i < server.getUsers().size(); i++) {
+            server.getUsers().get(i).getServer().sendObject(new SendAddShareEvent(share));
         }
         listener.createShareEvent(share);
     }

@@ -71,7 +71,7 @@ public class SFSServer implements ServerAction {
         event.execute(listener, server, this);
     }
 
-    public synchronized void onClientDisconnect(Server server) {
+    public void onClientDisconnect(Server server) {
         User user = null;
         System.out.println("Disconnect! Remove shares!");
         for (int i = 0; i < users.size(); i++) {

@@ -147,11 +147,8 @@ public class ServerTest {
             Thread.yield();
         }
 
-        File resultFile = new File("Downloads/Test");
-        String partHash = MD5File.MD5Directory(resultFile);
-        System.out.println("Init hash: " + initHash);
-        System.out.println("Part hash: " + partHash);
-        assertEquals(initHash, partHash);
+        testShare(new File("Downloads/Test"));
+
 
         System.out.println("Client 3: Create");
         SFSClient c3 = createClient("Client 3", 40003);
@@ -167,6 +164,8 @@ public class ServerTest {
             Thread.yield();
         }
 
+        testShare(new File("Downloads3/Test"));
+
         System.out.println("Client 4: Create");
         SFSClient c4 = createClient("Client 4", 40004);
         Thread.sleep(1000);
@@ -180,6 +179,36 @@ public class ServerTest {
         while (!done) {
             Thread.yield();
         }
+
+        testShare(new File("Downloads4/Test"));
+
+
+        System.out.println("Client 3: close");
+        c3.close();
+        Thread.sleep(1000);
+
+        System.out.println("Client 5: Create");
+        SFSClient c5 = createClient("Client 5", 40005);
+        Thread.sleep(1000);
+
+        System.out.println("Client 5: Set download folder");
+        c5.setShareFolder("Downloads5/");
+
+        System.out.println("Client 5: Download share 0 (" + c5.getShares().get(0) + ")");
+        done = false;
+        c5.getClient().sendObject(new GetShareOwnersEvent(c5.getShares().get(0)));
+        while (!done) {
+            Thread.yield();
+        }
+
+        testShare(new File("Downloads5/Test"));
+    }
+
+    private void testShare(File file) {
+        String partHash = MD5File.MD5Directory(file);
+        System.out.println("Init hash: " + initHash);
+        System.out.println("Part hash: " + partHash);
+        assertEquals(initHash, partHash);
     }
 
     @Test
