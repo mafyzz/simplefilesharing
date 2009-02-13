@@ -20,14 +20,16 @@ import org.jdesktop.application.SingleFrameApplication;
  */
 public class SFSUIApp extends SingleFrameApplication {
 
+    private SFSUIView view;
+
     /**
      * At startup create and show the main frame of the application.
      */
     @Override
     protected void startup() {
+        view = new SFSUIView(this);
         addLoggers();
-
-        show(new SFSUIView(this));
+        show(view);
     }
 
     private void addLoggers() {
@@ -36,6 +38,8 @@ public class SFSUIApp extends SingleFrameApplication {
 
                 @Override
                 public void publish(LogRecord record) {
+                    view.getErrorBox().log(record);
+                    view.setInfoIcon("infoIconLabel.icon.application_error");
                 }
 
                 @Override

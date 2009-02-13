@@ -3,7 +3,6 @@
  */
 package sfsui;
 
-import java.awt.Button;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,9 +16,7 @@ import org.jdesktop.application.FrameView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.BindException;
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import javax.swing.Timer;
 import javax.swing.Icon;
@@ -45,6 +42,10 @@ public class SFSUIView extends FrameView {
         super(app);
 
         initComponents();
+
+        JFrame mainFrame = SFSUIApp.getApplication().getMainFrame();
+        errorBox = new SFSUIErrorBox(mainFrame);
+        errorBox.setLocationRelativeTo(mainFrame);
 
         tps = new Hashtable<Integer, TransferPanel>();
 
@@ -216,10 +217,13 @@ public class SFSUIView extends FrameView {
         addShareMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
+        errorMenuItem = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
         javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
         statusMessageLabel = new javax.swing.JLabel();
+        statusIconPanel = new javax.swing.JPanel();
         statusAnimationLabel = new javax.swing.JLabel();
+        infoIconLabel = new javax.swing.JLabel();
         availableSharePopup = new javax.swing.JPopupMenu();
         availableShareDownloadMenuItem = new javax.swing.JMenuItem();
 
@@ -295,39 +299,40 @@ public class SFSUIView extends FrameView {
         aboutMenuItem.setName("aboutMenuItem"); // NOI18N
         helpMenu.add(aboutMenuItem);
 
+        errorMenuItem.setAction(actionMap.get("showErrorBox")); // NOI18N
+        errorMenuItem.setText(resourceMap.getString("errorMenuItem.text")); // NOI18N
+        errorMenuItem.setName("errorMenuItem"); // NOI18N
+        helpMenu.add(errorMenuItem);
+
         menuBar.add(helpMenu);
 
         statusPanel.setName("statusPanel"); // NOI18N
+        statusPanel.setPreferredSize(new java.awt.Dimension(814, 24));
+        statusPanel.setLayout(new java.awt.BorderLayout());
 
         statusPanelSeparator.setName("statusPanelSeparator"); // NOI18N
+        statusPanel.add(statusPanelSeparator, java.awt.BorderLayout.NORTH);
 
         statusMessageLabel.setName("statusMessageLabel"); // NOI18N
+        statusPanel.add(statusMessageLabel, java.awt.BorderLayout.WEST);
+
+        statusIconPanel.setName("statusIconPanel"); // NOI18N
+        statusIconPanel.setLayout(new java.awt.BorderLayout());
 
         statusAnimationLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         statusAnimationLabel.setName("statusAnimationLabel"); // NOI18N
+        statusIconPanel.add(statusAnimationLabel, java.awt.BorderLayout.WEST);
 
-        javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(statusPanel);
-        statusPanel.setLayout(statusPanelLayout);
-        statusPanelLayout.setHorizontalGroup(
-            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 814, Short.MAX_VALUE)
-            .addGroup(statusPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 790, Short.MAX_VALUE)
-                .addComponent(statusAnimationLabel)
-                .addContainerGap())
-        );
-        statusPanelLayout.setVerticalGroup(
-            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(statusPanelLayout.createSequentialGroup()
-                .addComponent(statusPanelSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(statusMessageLabel)
-                    .addComponent(statusAnimationLabel))
-                .addGap(3, 3, 3))
-        );
+        infoIconLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        infoIconLabel.setName("infoIconLabel"); // NOI18N
+        infoIconLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                infoIconLabelMouseClicked(evt);
+            }
+        });
+        statusIconPanel.add(infoIconLabel, java.awt.BorderLayout.EAST);
+
+        statusPanel.add(statusIconPanel, java.awt.BorderLayout.EAST);
 
         availableSharePopup.setName("availableSharePopup"); // NOI18N
 
@@ -340,6 +345,11 @@ public class SFSUIView extends FrameView {
         setMenuBar(menuBar);
         setStatusBar(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void infoIconLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_infoIconLabelMouseClicked
+        showErrorBox();
+        infoIconLabel.setIcon(null);
+    }//GEN-LAST:event_infoIconLabelMouseClicked
 
     @Action
     public void createShare() {
@@ -375,13 +385,27 @@ public class SFSUIView extends FrameView {
         }
     }
 
+    @Action
+    public void showErrorBox() {
+        SFSUIApp.getApplication().show(errorBox);
+    }
+
+    public SFSUIErrorBox getErrorBox() {
+        return errorBox;
+    }
+
+    public void setInfoIcon(String icon) {
+        infoIconLabel.setIcon(resourceMap.getIcon(icon));
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addShareMenuItem;
     private javax.swing.JMenuItem availableShareDownloadMenuItem;
     private javax.swing.JPanel availableShareListPanel;
     private javax.swing.JPopupMenu availableSharePopup;
     private javax.swing.JTree availableSharesTree;
+    private javax.swing.JMenuItem errorMenuItem;
     private javax.swing.JTextArea infoArea;
+    private javax.swing.JLabel infoIconLabel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane listSplitPane;
@@ -391,6 +415,7 @@ public class SFSUIView extends FrameView {
     private javax.swing.JPanel progressPanel;
     private javax.swing.JSplitPane progressSplitPane;
     private javax.swing.JLabel statusAnimationLabel;
+    private javax.swing.JPanel statusIconPanel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
     // End of variables declaration//GEN-END:variables
@@ -402,5 +427,5 @@ public class SFSUIView extends FrameView {
     private SFSClient sfs;
     private final Icon idleIcon;
     private Map<Integer, TransferPanel> tps;
-    private List<Share> testShares = new ArrayList<Share>();
+    private SFSUIErrorBox errorBox;
 }
