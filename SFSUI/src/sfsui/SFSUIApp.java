@@ -55,7 +55,6 @@ public class SFSUIApp extends SingleFrameApplication {
             Enumeration<String> logs = LogManager.getLogManager().getLoggerNames();
             while (logs.hasMoreElements()) {
                 String log = logs.nextElement();
-                System.out.println("Add logger: " + log);
                 Logger.getLogger(log).addHandler(handler);
                 Logger.getLogger(log).addHandler(fileHandler);
             }

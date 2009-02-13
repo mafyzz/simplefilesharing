@@ -15,6 +15,10 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.BindException;
 import java.util.Hashtable;
 import java.util.Map;
@@ -215,6 +219,8 @@ public class SFSUIView extends FrameView {
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         addShareMenuItem = new javax.swing.JMenuItem();
+        saveSharesMenuItem = new javax.swing.JMenuItem();
+        loadSharesMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
         errorMenuItem = new javax.swing.JMenuItem();
@@ -290,6 +296,16 @@ public class SFSUIView extends FrameView {
         addShareMenuItem.setName("addShareMenuItem"); // NOI18N
         fileMenu.add(addShareMenuItem);
 
+        saveSharesMenuItem.setAction(actionMap.get("saveLoadShares")); // NOI18N
+        saveSharesMenuItem.setText(resourceMap.getString("saveSharesMenuItem.text")); // NOI18N
+        saveSharesMenuItem.setName("saveSharesMenuItem"); // NOI18N
+        fileMenu.add(saveSharesMenuItem);
+
+        loadSharesMenuItem.setAction(actionMap.get("loadLocalShares")); // NOI18N
+        loadSharesMenuItem.setText(resourceMap.getString("loadSharesMenuItem.text")); // NOI18N
+        loadSharesMenuItem.setName("loadSharesMenuItem"); // NOI18N
+        fileMenu.add(loadSharesMenuItem);
+
         menuBar.add(fileMenu);
 
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
@@ -353,10 +369,11 @@ public class SFSUIView extends FrameView {
 
     @Action
     public void createShare() {
+        busyIconTimer.start();
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fileChooser.setMultiSelectionEnabled(true);
-        fileChooser.showOpenDialog(null);
+        fileChooser.showOpenDialog(SFSUIApp.getApplication().getMainFrame());
         if (fileChooser.getSelectedFiles().length > 0) {
             String shareName = "";
             if (fileChooser.getSelectedFiles().length == 1) {
@@ -374,14 +391,19 @@ public class SFSUIView extends FrameView {
                 sfs.getLocalShares().put(share.getHash(), new LocalShare(fileChooser.getSelectedFiles()[0], share));
             }
         }
+        busyIconTimer.start();
     }
 
     @Action
     public void downloadShare() {
         if (availableSharesTree.getSelectionPath() != null) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) availableSharesTree.getSelectionPath().getLastPathComponent();
-            Share share = (Share) node.getUserObject();
-            sfs.getClient().sendObject(new GetShareOwnersEvent(share));
+            try {
+                Share share = (Share) node.getUserObject();
+                sfs.getClient().sendObject(new GetShareOwnersEvent(share));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(SFSUIApp.getApplication().getMainFrame(), "You did not select a share-node");
+            }
         }
     }
 
@@ -397,6 +419,57 @@ public class SFSUIView extends FrameView {
     public void setInfoIcon(String icon) {
         infoIconLabel.setIcon(resourceMap.getIcon(icon));
     }
+
+    @Action
+    public void saveLoadShares() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.showOpenDialog(SFSUIApp.getApplication().getMainFrame());
+        if (fileChooser.getSelectedFile() != null) {
+            ObjectOutputStream out = null;
+            try {
+                out = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
+                out.writeObject(sfs.getLocalShares());
+            } catch (IOException ex) {
+                Logger.getLogger(SFSUIView.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(SFSUIView.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+    @Action
+    public void loadLocalShares() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.showOpenDialog(SFSUIApp.getApplication().getMainFrame());
+        if (fileChooser.getSelectedFile() != null) {
+            ObjectInputStream in = null;
+            try {
+                in = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+                sfs.setLocalShares((Map<Integer, LocalShare>) in.readObject());
+                for (LocalShare ls : sfs.getLocalShares().values()) {
+                    if (!sfs.getShares().contains(ls.getShare())) {
+                        sfs.getClient().sendObject(new CreateShareEvent(ls.getShare()));
+                    }
+                }
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(SFSUIView.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(SFSUIView.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(SFSUIView.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addShareMenuItem;
     private javax.swing.JMenuItem availableShareDownloadMenuItem;
@@ -409,11 +482,13 @@ public class SFSUIView extends FrameView {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane listSplitPane;
+    private javax.swing.JMenuItem loadSharesMenuItem;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JPanel privateShareListPanel;
     private javax.swing.JPanel progressPanel;
     private javax.swing.JSplitPane progressSplitPane;
+    private javax.swing.JMenuItem saveSharesMenuItem;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JPanel statusIconPanel;
     private javax.swing.JLabel statusMessageLabel;

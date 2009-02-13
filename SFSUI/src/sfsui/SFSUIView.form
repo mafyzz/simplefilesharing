@@ -177,6 +177,24 @@
                 <Property name="name" type="java.lang.String" value="addShareMenuItem" noResource="true"/>
               </Properties>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="saveSharesMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="sfsui.SFSUIView" id="saveLoadShares" methodName="saveLoadShares"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="saveSharesMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="saveSharesMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="loadSharesMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="sfsui.SFSUIView" id="loadLocalShares" methodName="loadLocalShares"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="loadSharesMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="loadSharesMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">
