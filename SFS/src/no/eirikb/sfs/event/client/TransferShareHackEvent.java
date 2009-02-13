@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.client.Client;
@@ -55,21 +56,19 @@ public class TransferShareHackEvent extends Event {
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
 
-            hash = in.read();
-            System.out.println("Hash: " + hash);
-            totalParts = in.read();
-            System.out.println("Total parts: " + totalParts);
-            partNumber = in.read();
-            System.out.println("Part number: " + partNumber);
-
-            LocalShare ls = client.getLocalShares().get(hash);
-            System.out.println("LocalShare: " + ls);
-            System.out.println("LocalShares size: " + client.getLocalShares().size());
-            System.out.println("LocalShare hashes:");
-            for (LocalShare l : client.getLocalShares().values()) {
-                System.out.println(l.getShare().getHash());
+            String toRead = "";
+            int read;
+            while ((read = in.read()) >= 0 && (char) read != '\n') {
+                toRead += (char) read;
             }
 
+            StringTokenizer st = new StringTokenizer(toRead, " ");
+
+            hash = Integer.parseInt(st.nextToken());
+            totalParts = Integer.parseInt(st.nextToken());
+            partNumber = Integer.parseInt(st.nextToken());
+
+            LocalShare ls = client.getLocalShares().get(hash);
             part = ShareUtility.cropShareToParts(ls.getShare(), totalParts)[partNumber];
             ShareFileReader reader = new ShareFileReader(part, ls.getFile());
             byte[] buf = new byte[socket.getSendBufferSize()];
@@ -103,9 +102,9 @@ public class TransferShareHackEvent extends Event {
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
 
-            out.write(hash);
-            out.write(totalParts);
-            out.write(partNumber);
+            String toSend = hash + " " + totalParts + " " + partNumber;
+
+            out.write((toSend + '\n').getBytes());
 
             ShareFileWriter writer = new ShareFileWriter(part,
                     new File(sfsClient.getShareFolder() + part.getName()));
