@@ -6,6 +6,7 @@
  */
 package no.eirikb.sfs.event.client;
 
+import no.eirikb.sfs.client.TransferShareHack;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
@@ -35,7 +36,6 @@ public class SendShareOwnersEvent extends Event {
     private Share share;
     private String[] IPs;
     private int[] ports;
-    private Client c;
 
     public SendShareOwnersEvent(Share share, String[] IPs, int[] ports) {
         this.share = share;
@@ -59,9 +59,9 @@ public class SendShareOwnersEvent extends Event {
         listener.shareStartInfo(ls, parts);
         for (int i = 0; i < IPs.length; i++) {
             try {
-                Socket c = new Socket(IPs[i], ports[i]);
-                TransferShareHackEvent t = new TransferShareHackEvent(share.getHash(), IPs.length, i, c, parts[i]);
-                t.execute(listener, client);
+                Socket s = new Socket(IPs[i], ports[i]);
+                TransferShareHack t = new TransferShareHack(share.getHash(), IPs.length, i, s, parts[i]);
+                t.receiveShare(listener, client);
             } catch (UnknownHostException ex) {
                 Logger.getLogger(SendShareOwnersEvent.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {

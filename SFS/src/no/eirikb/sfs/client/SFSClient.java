@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import no.eirikb.sfs.event.Event;
-import no.eirikb.sfs.event.client.TransferShareHackEvent;
+import no.eirikb.sfs.client.TransferShareHack;
 import no.eirikb.sfs.event.server.CreateShareEvent;
 import no.eirikb.sfs.event.server.GetSharesEvent;
 import no.eirikb.sfs.event.server.SendUserInfoEvent;
@@ -68,8 +68,8 @@ public class SFSClient implements ClientAction, ServerAction {
                     while (true) {
                         try {
                             Socket socket = serverListener.accept();
-                            TransferShareHackEvent t = new TransferShareHackEvent(socket);
-                            t.executeServer(listener, sfsClient);
+                            TransferShareHack t = new TransferShareHack(socket);
+                            t.sendShare(listener, sfsClient);
                         } catch (IOException ex) {
                             Logger.getLogger(SFSClient.class.getName()).log(Level.SEVERE, null, ex);
                         }

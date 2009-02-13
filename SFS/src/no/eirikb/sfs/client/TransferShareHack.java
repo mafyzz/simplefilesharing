@@ -3,8 +3,9 @@
  * Copyright (c) 2008 Exaid. All rights reserved.
  * =============================================================================
  */
-package no.eirikb.sfs.event.client;
+package no.eirikb.sfs.client;
 
+import no.eirikb.sfs.event.client.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,7 @@ import no.eirikb.sfs.share.ShareUtility;
  *
  * @author eirikb
  */
-public class TransferShareHackEvent extends Event {
+public class TransferShareHack {
 
     private Integer hash;
     private int totalParts;
@@ -39,7 +40,7 @@ public class TransferShareHackEvent extends Event {
     private Socket socket;
     private ShareFolder part;
 
-    public TransferShareHackEvent(Integer hash, int totalParts, int partNumber, Socket socket, ShareFolder part) {
+    public TransferShareHack(Integer hash, int totalParts, int partNumber, Socket socket, ShareFolder part) {
         this.hash = hash;
         this.totalParts = totalParts;
         this.partNumber = partNumber;
@@ -47,11 +48,11 @@ public class TransferShareHackEvent extends Event {
         this.part = part;
     }
 
-    public TransferShareHackEvent(Socket socket) {
+    public TransferShareHack(Socket socket) {
         this.socket = socket;
     }
 
-    public void executeServer(SFSClientListener listener, SFSClient client) {
+    public void sendShare(SFSClientListener listener, SFSClient client) {
         try {
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
@@ -93,11 +94,7 @@ public class TransferShareHackEvent extends Event {
         }
     }
 
-    public void execute(SFSServerListener listener, Server client, SFSServer server) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void execute(SFSClientListener listener, SFSClient sfsClient) {
+    public void receiveShare(SFSClientListener listener, SFSClient sfsClient) {
         try {
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
@@ -134,13 +131,5 @@ public class TransferShareHackEvent extends Event {
                 Logger.getLogger(TransferShareEvent.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-
-    public void execute(SFSClientListener listener, SFSClient client, Server server) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void execute(SFSClientListener listener, SFSClient sfsClient, Client client) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
