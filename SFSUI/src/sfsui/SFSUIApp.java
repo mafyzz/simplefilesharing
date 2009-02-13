@@ -3,6 +3,15 @@
  */
 package sfsui;
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Enumeration;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 
@@ -16,7 +25,40 @@ public class SFSUIApp extends SingleFrameApplication {
      */
     @Override
     protected void startup() {
+        addLoggers();
+
         show(new SFSUIView(this));
+    }
+
+    private void addLoggers() {
+        try {
+            Handler handler = new Handler() {
+
+                @Override
+                public void publish(LogRecord record) {
+                }
+
+                @Override
+                public void flush() {
+                }
+
+                @Override
+                public void close() throws SecurityException {
+                }
+            };
+            FileHandler fileHandler = new FileHandler("SFS.log");
+            Enumeration<String> logs = LogManager.getLogManager().getLoggerNames();
+            while (logs.hasMoreElements()) {
+                String log = logs.nextElement();
+                System.out.println("Add logger: " + log);
+                Logger.getLogger(log).addHandler(handler);
+                Logger.getLogger(log).addHandler(fileHandler);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(SFSUIApp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            Logger.getLogger(SFSUIApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

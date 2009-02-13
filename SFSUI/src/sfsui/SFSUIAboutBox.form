@@ -40,13 +40,14 @@
                                   <Component id="versionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="homepageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="authorLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="appBuildNumberLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="buildNumberLabel" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="appAuthorLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="appHomepageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="appVersionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="appBuildNumberLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Component id="appDescLabel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -88,7 +89,10 @@
                           <Component id="appAuthorLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="appBuildNumberLabel" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="appBuildNumberLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="buildNumberLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="closeButton" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -219,6 +223,13 @@
           <ResourceString bundle="sfsui/resources/version.properties" key="BUILD" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="name" type="java.lang.String" value="appBuildNumberLabel" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="buildNumberLabel">
+      <Properties>
+        <Property name="font" type="java.awt.Font" resourceKey="buildNumberLabel.font"/>
+        <Property name="text" type="java.lang.String" resourceKey="buildNumberLabel.text"/>
+        <Property name="name" type="java.lang.String" value="buildNumberLabel" noResource="true"/>
       </Properties>
     </Component>
   </SubComponents>

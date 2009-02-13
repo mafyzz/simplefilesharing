@@ -111,7 +111,7 @@ public class SFSUIView extends FrameView {
                 }
 
                 public void receiveDone(LocalShare ls) {
-                    System.out.println("Recieve done");
+                    tps.get(ls.getShare().getHash()).done();
                 }
 
                 public void sendStatus(LocalShare ls, ShareFolder share, int partNumber, long bytes) {
@@ -119,7 +119,7 @@ public class SFSUIView extends FrameView {
                 }
 
                 public void sendDone(LocalShare ls) {
-                    tps.get(ls.getShare().getHash()).done();
+                    System.out.println("Send done");
                 }
 
                 public void shareStartInfo(LocalShare ls, ShareFolder[] parts) {

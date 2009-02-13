@@ -37,6 +37,7 @@ public class SFSUIAboutBox extends javax.swing.JDialog {
         javax.swing.JLabel authorLabel = new javax.swing.JLabel();
         appAuthorLabel = new javax.swing.JLabel();
         appBuildNumberLabel = new javax.swing.JLabel();
+        buildNumberLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(sfsui.SFSUIApp.class).getContext().getResourceMap(SFSUIAboutBox.class);
@@ -85,6 +86,10 @@ public class SFSUIAboutBox extends javax.swing.JDialog {
         appBuildNumberLabel.setText(bundle.getString("BUILD")); // NOI18N
         appBuildNumberLabel.setName("appBuildNumberLabel"); // NOI18N
 
+        buildNumberLabel.setFont(resourceMap.getFont("buildNumberLabel.font")); // NOI18N
+        buildNumberLabel.setText(resourceMap.getString("buildNumberLabel.text")); // NOI18N
+        buildNumberLabel.setName("buildNumberLabel"); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -102,12 +107,13 @@ public class SFSUIAboutBox extends javax.swing.JDialog {
                                     .addComponent(versionLabel)
                                     .addComponent(homepageLabel)
                                     .addComponent(authorLabel)
-                                    .addComponent(appBuildNumberLabel))
+                                    .addComponent(buildNumberLabel))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(appAuthorLabel)
                                     .addComponent(appHomepageLabel)
-                                    .addComponent(appVersionLabel)))
+                                    .addComponent(appVersionLabel)
+                                    .addComponent(appBuildNumberLabel)))
                             .addComponent(appDescLabel, javax.swing.GroupLayout.Alignment.LEADING))
                         .addContainerGap(178, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
@@ -138,7 +144,9 @@ public class SFSUIAboutBox extends javax.swing.JDialog {
                             .addComponent(authorLabel)
                             .addComponent(appAuthorLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(appBuildNumberLabel)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(appBuildNumberLabel)
+                            .addComponent(buildNumberLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(closeButton)))
                 .addContainerGap())
@@ -150,6 +158,7 @@ public class SFSUIAboutBox extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel appAuthorLabel;
     private javax.swing.JLabel appBuildNumberLabel;
+    private javax.swing.JLabel buildNumberLabel;
     private javax.swing.JButton closeButton;
     // End of variables declaration//GEN-END:variables
     
