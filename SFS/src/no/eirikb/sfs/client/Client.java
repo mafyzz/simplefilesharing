@@ -48,6 +48,7 @@ public class Client extends Thread {
     public void sendObject(Object object) {
         try {
             objectOut.writeObject(object);
+            objectOut.flush();
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }

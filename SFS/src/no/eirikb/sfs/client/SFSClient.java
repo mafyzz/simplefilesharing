@@ -43,6 +43,8 @@ public class SFSClient implements ClientAction, ServerAction {
     private SFSClientListener listener;
     private Map<Integer, LocalShare> localShares;
     private String shareFolder;
+    private ServerSocket serverListener;
+    private boolean run;
 
     public SFSClient(SFSClientListener listener2, int listenPort2) throws IOException {
         this.listener = listener2;
@@ -64,8 +66,9 @@ public class SFSClient implements ClientAction, ServerAction {
 
             public void run() {
                 try {
-                    ServerSocket serverListener = new ServerSocket(listenPort);
-                    while (true) {
+                    serverListener = new ServerSocket(listenPort);
+                    run = true;
+                    while (run) {
                         try {
                             Socket socket = serverListener.accept();
                             TransferShareHack t = new TransferShareHack(socket);
@@ -93,7 +96,12 @@ public class SFSClient implements ClientAction, ServerAction {
     }
 
     public void close() {
-        //serverListener.close();
+        run = false;
+        try {
+            serverListener.close();
+        } catch (IOException ex) {
+            Logger.getLogger(SFSClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             client.getSocket().close();
         } catch (IOException ex) {

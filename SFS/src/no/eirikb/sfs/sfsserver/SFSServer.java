@@ -71,9 +71,9 @@ public class SFSServer implements ServerAction {
         event.execute(listener, server, this);
     }
 
-    public void onClientDisconnect(Server server) {
+    public synchronized void onClientDisconnect(Server server) {
         User user = null;
-        System.out.println("Disconnect! Remove shares?!");
+        System.out.println("Disconnect! Remove shares!");
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getServer().equals(server)) {
                 user = users.remove(i);
@@ -82,19 +82,18 @@ public class SFSServer implements ServerAction {
         }
         if (user != null) {
             System.out.println("User found, removing user...");
-            ShareHolder[] shs = shareHolders.values().toArray(new ShareHolder[0]);
-            Integer[] is = shareHolders.keySet().toArray(new Integer[0]);
-            for (int i = 0; i < shs.length; i++) {
-                if (shs[i].getUsers().size() == 1 && shs[i].getUsers().get(0).equals(user)) {
-                    shareHolders.remove(is[i]);
-                    shares.remove(shs[i].getShare());
-                    System.out.println("Remove share! " + shs[i].getShare());
-                    for (User u : users) {
-                        u.getServer().sendObject(new SendRemoveShareEvent(shs[i].getShare()));
+            for (Map.Entry<Integer, ShareHolder> e : shareHolders.entrySet()) {
+                if (e.getValue().getUsers().contains(user)) {
+                    e.getValue().getUsers().remove(user);
+                    if (e.getValue().getUsers().size() == 0) {
+                        shareHolders.remove(e.getKey());
+                        for (User u : users) {
+                            u.getServer().sendObject(new SendRemoveShareEvent(e.getValue().getShare()));
+                        }
                     }
                 }
-            }
 
+            }
             listener.onClientDisconnect(user);
         }
     }
