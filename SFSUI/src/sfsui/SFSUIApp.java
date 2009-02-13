@@ -21,6 +21,7 @@ import org.jdesktop.application.SingleFrameApplication;
 public class SFSUIApp extends SingleFrameApplication {
 
     private SFSUIView view;
+    private Handler handler;
 
     /**
      * At startup create and show the main frame of the application.
@@ -34,7 +35,7 @@ public class SFSUIApp extends SingleFrameApplication {
 
     private void addLoggers() {
         try {
-            Handler handler = new Handler() {
+            handler = new Handler() {
 
                 @Override
                 public void publish(LogRecord record) {
@@ -91,5 +92,9 @@ public class SFSUIApp extends SingleFrameApplication {
         } else {
             System.out.println("Starting server...");
         }
+    }
+
+    public void addLog(Logger log) {
+        log.addHandler(handler);
     }
 }
