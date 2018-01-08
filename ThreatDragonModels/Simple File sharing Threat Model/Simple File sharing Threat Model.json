@@ -1,0 +1,12 @@
+{
+  "summary": {
+    "title": "Simple File sharing Threat Model",
+    "owner": "Fábio",
+    "description": "Share files"
+  },
+  "detail": {
+    "contributors": [],
+    "diagrams": [],
+    "reviewer": "Fábio"
+  }
+}
